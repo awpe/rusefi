@@ -3,6 +3,11 @@
 #include <cstdint>
 
 namespace Haltech {
+    enum WboChannels : uint16_t {
+        CHA = 0x2b1
+        // TODO add IDs for Channels B,C,D as I don't have such on hand
+    };
+
     enum class WboStatus : uint8_t {
         NoError = 0,
         BatteryLow = 1,

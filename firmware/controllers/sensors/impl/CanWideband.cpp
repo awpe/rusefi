@@ -7,7 +7,6 @@
 
 static constexpr uint32_t aem_base    = 0x180;
 static constexpr uint32_t rusefi_base = WB_DATA_BASE_ADDR;
-static constexpr uint32_t haltech_base = 0x2b1;
 
 CanWideband::CanWideband(uint8_t sensorIndex, SensorType type)
 	: CanSensorBase(
@@ -40,7 +39,7 @@ bool CanWideband::acceptFrame(const CANRxFrame& frame) const {
 	}
 
 	if ((!CAN_ISX(frame)) && (type == HALTECH)) {
-		return CAN_SID(frame) == haltech_base;
+		return CAN_SID(frame) == Haltech::WboChannels::CHA;
 	}
 
 	// RusEFI wideband uses standard CAN IDs
@@ -105,7 +104,7 @@ void CanWideband::refreshState() {
 			return;
 		}
 	} else if (type == HALTECH) {
-		// This is AEM with two flags only and no debug fields
+		// TODO implement status handling using Haltech::WboStatus enum from Haltech::decodeStatus
 		heaterDuty = 0;
 		pumpDuty = 0;
 		tempC = 0;
