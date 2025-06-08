@@ -24,6 +24,7 @@
 #include "tunerstudio.h"
 #include "long_term_fuel_trim.h"
 #include "can_common.h"
+#include "can_rx.h"
 
 static bool isRunningBench = false;
 static OutputPin *outputOnTheBenchTest = nullptr;
@@ -569,22 +570,32 @@ static void handleCommandX14(uint16_t index) {
 extern bool rebootForPresetPending;
 
 static void applyPreset(int index) {
+  setEngineType(index);
 #if EFI_TUNER_STUDIO
 	onApplyPreset();
 #endif // EFI_TUNER_STUDIO
-  setEngineType(index);
 }
 
 PUBLIC_API_WEAK void boardTsAction(uint16_t index) { }
 
 #if EFI_CAN_SUPPORT
+/**
+ * for example to bench test injector 1
+ * 0x77000C 0x66 0x00 ?? ?? ?? ??
+ *
+ * See also more complicated ISO-TP CANBus wrapper of complete TS protocol
+ */
 void processCanEcuControl(const CANRxFrame& frame) {
-	if (CAN_EID(frame) != (int)bench_test_packet_ids_e::ECU_CAN_BUS_CONTROL) {
+	if (CAN_EID(frame) != (int)bench_test_packet_ids_e::ECU_CAN_BUS_USER_CONTROL) {
 		return;
 	}
 	if (frame.data8[0] != (int)bench_test_magic_numbers_e::BENCH_HEADER) {
 		return;
 	}
+	// reserved data8[1]
+	uint16_t subsystem = getTwoBytesLsb(frame, 2);
+	uint16_t index = getTwoBytesLsb(frame, 4);
+	executeTSCommand(subsystem, index);
 }
 #endif // EFI_CAN_SUPPORT
 
