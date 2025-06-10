@@ -1,14 +1,25 @@
 #pragma once
 
+#include "efi_scaled_channel.h"
+#include "rusefi_types.h"
 #include <cstdint>
+#include <cstddef>
 #include <type_traits>
+
+#if EFI_UNIT_TEST
+#define LogFieldEvalModeFunc
+#define LogFieldEvalModeVar
+#else
+#define LogFieldEvalModeFunc consteval
+#define LogFieldEvalModeVar constexpr
+#endif
 
 struct Writer;
 class LogField {
 public:
 	// Scaled channels, memcpys data directly and describes format in header
 	template <typename TValue, int TMult, int TDiv>
-	consteval LogField(const scaled_channel<TValue, TMult, TDiv>& toRead,
+	LogFieldEvalModeFunc LogField(const scaled_channel<TValue, TMult, TDiv>& toRead,
 			   const char* name, const char* units, int8_t digits, const char* category = "none")
 		: m_multiplier(float(TDiv) / TMult)
 		, m_addr(toRead.getFirstByteAddr())
@@ -26,7 +37,7 @@ public:
 
 	// Non-scaled channel, works for plain arithmetic types (int, float, uint8_t, etc)
 	template <typename TValue, typename = typename std::enable_if<std::is_arithmetic_v<TValue>>::type>
-	consteval LogField(TValue& toRead,
+	LogFieldEvalModeFunc LogField(TValue& toRead,
 			   const char* name, const char* units, int8_t digits, const char* category = "none")
 		: m_multiplier(1)
 		, m_addr(&toRead)
@@ -44,7 +55,7 @@ public:
 
 	// Bit channel
 	template <typename TValue>
-	consteval LogField(
+	LogFieldEvalModeFunc LogField(
 		TValue& toRead,
 		const uint32_t bitsBlockOffset,
 		const uint8_t bitNumber,
@@ -75,7 +86,7 @@ public:
 		F32 = 7,
 	};
 
-	consteval size_t getSize() const {
+	LogFieldEvalModeFunc size_t getSize() const {
 		return m_size;
 	}
 

@@ -28,7 +28,7 @@ static scaled_channel<uint32_t, TIME_PRECISION> packedTime;
 #include <log_fields_generated.h>
 
 template <typename T, size_t N>
-consteval size_t getFieldsSize(const T(&)[N]) {
+LogFieldEvalModeFunc size_t getFieldsSize(const T(&)[N]) {
 	return N;
 }
 
@@ -36,7 +36,7 @@ int getSdCardFieldsCount() {
 	return getFieldsSize(fields);
 }
 
-static consteval uint16_t computeFieldsRecordLength() {
+static LogFieldEvalModeFunc uint16_t computeFieldsRecordLength() {
 	uint16_t recLength = 0;
 	for (size_t i = 0; i < getFieldsSize(fields); i++) {
 		recLength += fields[i].getSize();
@@ -47,7 +47,7 @@ static consteval uint16_t computeFieldsRecordLength() {
 
 static uint64_t binaryLogCount = 0;
 
-static const uint16_t recordLength = computeFieldsRecordLength();
+static LogFieldEvalModeVar const uint16_t recordLength = computeFieldsRecordLength();
 
 static size_t writeFileHeader(Writer& outBuffer) {
 	size_t writen = 0;
