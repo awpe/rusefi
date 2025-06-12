@@ -66,6 +66,8 @@
 #include "engine_modules_generated.h"
 #endif
 
+static_assert(MAX_CYLINDER_COUNT > 0);
+
 #ifndef EFI_UNIT_TEST
 #error EFI_UNIT_TEST must be defined!
 #endif

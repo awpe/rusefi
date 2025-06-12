@@ -73,7 +73,7 @@ public:
 		reset();
 	}
 
-	void* realloc(void* ptr, size_t osize, size_t nsize) {
+	void* realloc(void* ptr, size_t /*osize*/, size_t nsize) {
 		if (nsize == 0) {
 			// requested size is zero, free if necessary and return nullptr
 			if (ptr) {

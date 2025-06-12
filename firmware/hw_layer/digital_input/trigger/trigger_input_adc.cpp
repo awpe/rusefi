@@ -275,7 +275,7 @@ void TriggerAdcDetector::digitalCallback(efitick_t stamp, bool isPrimary, bool r
 #endif // !EFI_SIMULATOR && EFI_SHAFT_POSITION_INPUT
 }
 
-void TriggerAdcDetector::analogCallback(efitick_t stamp, triggerAdcSample_t value) {
+void TriggerAdcDetector::analogCallback([[maybe_unused]] efitick_t stamp, [[maybe_unused]] triggerAdcSample_t value) {
 #if ! EFI_SIMULATOR && ((HAL_TRIGGER_USE_ADC && HAL_USE_ADC) || EFI_UNIT_TEST)
 	if (curAdcMode != TRIGGER_ADC_ADC) {
 		return;

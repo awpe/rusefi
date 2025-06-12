@@ -15,31 +15,28 @@
 
 #if EFI_STORAGE_MFS == TRUE
 #include "mfs_storage.h"
-#endif
 
-StorageStatus storageWrite(int id, const uint8_t *ptr, size_t size)
-{
-#if EFI_STORAGE_MFS == TRUE
+StorageStatus storageWrite(int id, const uint8_t *ptr, size_t size) {
 	return mfsStorageWrite(id, ptr, size);
-#endif // EFI_STORAGE_MFS
+}
 
+StorageStatus storageRead(int id, uint8_t *ptr, size_t size) {
+	return mfsStorageRead(id, ptr, size);
+}
+
+void initStorage() {
+	initStorageMfs();
+}
+#else
+StorageStatus storageWrite(int, const uint8_t*, size_t) {
 	return StorageStatus::Failed;
 }
 
-StorageStatus storageRead(int id, uint8_t *ptr, size_t size)
-{
-#if EFI_STORAGE_MFS == TRUE
-	return mfsStorageRead(id, ptr, size);
-#endif // EFI_STORAGE_MFS
-
+StorageStatus storageRead(int, uint8_t*, size_t) {
 	return StorageStatus::NotFound;
 }
 
-void initStorage()
-{
-#if EFI_STORAGE_MFS == TRUE
-	initStorageMfs();
-#endif // EFI_STORAGE_MFS
-}
+void initStorage() { }
+#endif
 
 #endif // EFI_CONFIGURATION_STORAGE

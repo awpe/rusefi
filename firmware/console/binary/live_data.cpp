@@ -253,7 +253,7 @@ const lambda_monitor_s* getLiveData(size_t) {
 #endif
 
 template<>
-const mc33810_state_s* getLiveData(size_t idx) {
+const mc33810_state_s* getLiveData([[maybe_unused]] size_t idx) {
 #if (BOARD_MC33810_COUNT > 0)
 	return mc33810getLiveData(idx);
 #else

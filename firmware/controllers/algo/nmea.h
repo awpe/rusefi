@@ -10,11 +10,11 @@
 
 #define GPS_MAX_STRING 256
 
-typedef enum {
+enum nmea_message_type {
 	NMEA_UNKNOWN = 0x00,
 	NMEA_GPRMC = 0x01,
 	NMEA_GPGGA = 0x02
-} nmea_message_type;
+};
 
 #define _EMPTY 0x00
 #define NMEA_GPRMC_STR "$GPRMC"
@@ -37,11 +37,11 @@ struct GPSlocation {
 	char lat;		// Northing Indicator			N=North, S=South
 	char lon;		// Easting Indicator			E=East, W=West
 };
-typedef struct GPSlocation loc_t;
+
+using loc_t = GPSlocation;
 
 nmea_message_type nmea_get_message_type(const char *);
 int nmea_valid_checksum(const char *);
-
 
 void gps_location(loc_t *, char const * const);
 
