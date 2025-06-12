@@ -11,7 +11,9 @@
 
 #include "rusefi/crc.h"
 
-typedef struct {
+#ifdef __cplusplus
+
+struct persistent_config_container_s {
 	int version;
 	int size;
 	persistent_config_s persistentConfiguration;
@@ -20,4 +22,6 @@ typedef struct {
 	uint32_t getCrc() {
 		return crc32(&persistentConfiguration, sizeof(persistent_config_s));
 	}
-} persistent_config_container_s;
+};
+
+#endif

@@ -166,7 +166,7 @@ static void sendOkResponse(TsChannelBase *tsChannel) {
 	tsChannel->sendResponse(TS_CRC, nullptr, 0);
 }
 
-void sendErrorCode(TsChannelBase *tsChannel, uint8_t code, const char *msg) {
+void sendErrorCode(TsChannelBase *tsChannel, uint8_t code, const char* /*msg*/) {
 //TODO uncomment once I have test it myself  if (msg != DO_NOT_LOG) {
 //	  efiPrintf("TS <- Err: %d [%s]", code, msg);
 //  }
@@ -213,7 +213,7 @@ void onApplyPreset() {
   engine->engineTypeChangeTimer.reset();
 }
 
-static void onCalibrationWrite(uint16_t page, uint16_t offset, uint16_t count) {
+static void onCalibrationWrite(uint16_t /*page*/, uint16_t /*offset*/, uint16_t /*count*/) {
 }
 
 /**

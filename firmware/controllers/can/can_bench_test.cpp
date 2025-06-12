@@ -97,24 +97,27 @@ static void qcSetEtbState(uint8_t dcIndex, uint8_t direction) {
 }
 
 static void setPin(const CANRxFrame& frame, int value) {
-		size_t outputIndex = frame.data8[2];
-		if (outputIndex >= getBoardMetaOutputsCount()) {
-		  criticalError("QC pin index %d out of range", outputIndex);
-			return;
-	  }
-#if EFI_GPIO_HARDWARE && EFI_PROD_CODE
-	  Gpio* boardOutputs = getBoardMetaOutputs();
-	  criticalAssertVoid(boardOutputs != nullptr, "outputs not defined");
-		Gpio pin = boardOutputs[outputIndex];
+	size_t outputIndex = frame.data8[2];
 
-        int hwIndex = brainPin_to_index(pin);
-        if (pinRepository.getBrainUsedPin(hwIndex) == nullptr) {
-            // if pin is assigned we better configure it
-            efiSetPadModeWithoutOwnershipAcquisition("QC_SET", pin, PAL_MODE_OUTPUT_PUSHPULL);
-        }
+	if (outputIndex >= static_cast<size_t>(getBoardMetaOutputsCount())) {
+		criticalError("QC pin index %zu out of range (%zu)", outputIndex, static_cast<size_t>(getBoardMetaOutputsCount()));
+		return;
+	}
 
-        directWritePad(pin, value);
-#endif // EFI_GPIO_HARDWARE && EFI_PROD_CODE
+	#if EFI_GPIO_HARDWARE && EFI_PROD_CODE
+	Gpio* boardOutputs = getBoardMetaOutputs();
+	criticalAssertVoid(boardOutputs != nullptr, "outputs not defined");
+	Gpio pin = boardOutputs[outputIndex];
+
+	int hwIndex = brainPin_to_index(pin);
+
+	if (pinRepository.getBrainUsedPin(hwIndex) == nullptr) {
+		// if pin is assigned we better configure it
+		efiSetPadModeWithoutOwnershipAcquisition("QC_SET", pin, PAL_MODE_OUTPUT_PUSHPULL);
+	}
+
+	directWritePad(pin, value);
+	#endif // EFI_GPIO_HARDWARE && EFI_PROD_CODE
 }
 
 void sendQcBenchEventCounters() {

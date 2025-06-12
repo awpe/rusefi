@@ -628,7 +628,7 @@ int lua_canRxAddMask(lua_State* l) {
 }
 #endif // EFI_CAN_SUPPORT
 
-PUBLIC_API_WEAK void boardConfigureLuaHooks(lua_State* lState) { }
+PUBLIC_API_WEAK void boardConfigureLuaHooks(lua_State* /*lState*/) { }
 
 static tinymt32_t tinymt;
 
@@ -688,7 +688,7 @@ void configureRusefiLuaHooks(lua_State* lState) {
 
 	lua_register(lState, "readPin", lua_readpin);
 #if EFI_PROD_CODE && EFI_SHAFT_POSITION_INPUT
-	lua_register(lState, "startCrankingEngine", [](lua_State* l) {
+	lua_register(lState, "startCrankingEngine", [](lua_State*/*l*/) {
 		doStartCranking();
 		return 0;
 	});
@@ -835,13 +835,13 @@ extern int luaCommandCounters[LUA_BUTTON_COUNT];
 		return 0;
 	});
 
-	lua_register(lState, "enableCanRxWorkaround", [](lua_State* l) {
+	lua_register(lState, "enableCanRxWorkaround", [](lua_State*/*l*/) {
 		// that's about global_can_data
 		engineConfiguration->luaCanRxWorkaround = true;
 		return 0;
 	});
 #if HW_PROTEUS
-	lua_register(lState, "disableExtendedCanBroadcast", [](lua_State* l) {
+	lua_register(lState, "disableExtendedCanBroadcast", [](lua_State*/*l*/) {
 		// that's about global_can_data
 		engineConfiguration->enableExtendedCanBroadcast = false;
 		return 0;
@@ -1021,7 +1021,7 @@ extern int luaCommandCounters[LUA_BUTTON_COUNT];
 		}
 		return 0;
 	});
-	lua_register(lState, CMD_BURNCONFIG, [](lua_State* l) {
+	lua_register(lState, CMD_BURNCONFIG, [](lua_State*/*l*/) {
 	  requestBurn();
 		return 0;
 	});
