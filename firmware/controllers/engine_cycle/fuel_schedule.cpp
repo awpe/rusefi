@@ -14,6 +14,11 @@ void turnInjectionPinHigh(uintptr_t arg) {
 	// clear last bit to recover the pointer
 	InjectionEvent *event = reinterpret_cast<InjectionEvent*>(arg & ~(1UL));
 
+#if EFI_UNIT_TEST
+	assert(reinterpret_cast<uintptr_t>(event) % alignof(InjectionEvent) == 0);
+	efiPrintf("%ul", reinterpret_cast<uintptr_t>(event));
+#endif
+
 	// extract last bit
 	bool stage2Active = arg & 1;
 
