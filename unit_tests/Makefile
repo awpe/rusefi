@@ -2,6 +2,8 @@
 # Build global options
 # NOTE: Can be overridden externally.
 #
+CC = clang
+CXX = clang++
 
 PROJECT_DIR = ../firmware
 UNIT_TESTS_DIR=$(PROJECT_DIR)/../unit_tests

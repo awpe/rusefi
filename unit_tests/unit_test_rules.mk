@@ -74,7 +74,7 @@ ifeq ($(SANITIZE),yes)
 	ifeq ($(IS_MAC),yes)
 		USE_CPPOPT += -fsanitize=address
 	else
-		USE_CPPOPT += -fsanitize=address -fsanitize=bounds-strict -fno-sanitize-recover=all
+		USE_CPPOPT += -fsanitize=address -fno-sanitize-recover=all
 	endif
 endif
 
@@ -119,15 +119,15 @@ else
   TRGT =
 endif
 
-CC   = $(TRGT)gcc
-CPPC = $(TRGT)g++
+CC   = $(TRGT)clang
+CPPC = $(TRGT)clang++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
 #LD   = $(TRGT)gcc
-LD   = $(TRGT)g++
+LD   = $(TRGT)clang++
 CP   = $(TRGT)objcopy
-AS   = $(TRGT)gcc -x assembler-with-cpp
+AS   = $(TRGT)clang -x assembler-with-cpp
 OD   = $(TRGT)objdump
 HEX  = $(CP) -O ihex
 BIN  = $(CP) -O binary

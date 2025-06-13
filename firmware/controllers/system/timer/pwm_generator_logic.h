@@ -12,7 +12,7 @@
 #include "scheduler.h"
 #include "efi_gpio.h"
 
-#define PERCENT_TO_DUTY(x) (x) * 0.01
+#define PERCENT_TO_DUTY(x) ((x) * 0.01)
 
 #define NAN_FREQUENCY_SLEEP_PERIOD_MS 100
 
@@ -62,7 +62,7 @@ public:
 	/**
 	 * We need to handle zero duty cycle and 100% duty cycle in a special way
 	 */
-	pwm_mode_e mode;
+	pwm_mode_e mode{PM_NORMAL};
 	bool isStopRequested = false;
 
 	/**
@@ -71,20 +71,20 @@ public:
 	void setFrequency(float frequency);
 
 	void handleCycleStart();
-	const char *m_name;
+	const char *m_name{"[noname]"};
 
 	// todo: 'outputPins' should be extracted away from here since technically one can want PWM scheduler without actual pin output
-	OutputPin *outputPins[PWM_PHASE_MAX_WAVE_PER_PWM];
+	OutputPin *outputPins[PWM_PHASE_MAX_WAVE_PER_PWM]{};
 	MultiChannelStateSequence const * multiChannelStateSequence = nullptr;
 	efitick_t togglePwmState();
 	void stop();
-	void applyPwmValue(OutputPin *output, int stateIndex, int channelIndex = 0);
+	void applyPwmValue(OutputPin *output, int stateIndex, int channelIndex = 0) const;
 
-	int dbgNestingLevel;
+	int dbgNestingLevel{};
 
-	scheduling_s scheduling;
+	scheduling_s scheduling{};
 
-	pwm_config_safe_state_s safe;
+	pwm_config_safe_state_s safe{};
 
 	/**
 	 * this callback is invoked before each wave generation cycle
@@ -100,7 +100,7 @@ private:
 	 * float value of PWM period
 	 * PWM generation is not happening while this value is NAN
 	 */
-	float periodNt;
+	float periodNt{NAN};
 
 	// Set if we are very far behind schedule and need to reset back to the beginning of a cycle to find our way
 	bool forceCycleStart = true;
@@ -115,7 +115,7 @@ struct IPwm {
 class SimplePwm : public PwmConfig, public IPwm {
 public:
 	SimplePwm();
-	SimplePwm(const char *name);
+	explicit SimplePwm(const char *name);
 	void setSimplePwmDutyCycle(float dutyCycle) override;
 	MultiChannelStateSequenceWithData<2> seq;
 	hardware_pwm* hardPwm = nullptr;
@@ -137,7 +137,7 @@ void applyPinState(int stateIndex, PwmConfig* state) /* pwm_gen_callback */;
 void startSimplePwm(SimplePwm *state, const char *msg,
 		Scheduler *executor,
 		OutputPin *output,
-		float frequency, float dutyCycle, pwm_gen_callback *callback = NULL);
+		float frequency, float dutyCycle, pwm_gen_callback *callback = nullptr);
 
 /**
  * initialize GPIO pin and start a one-channel software PWM driver.
@@ -148,7 +148,7 @@ void startSimplePwmExt(SimplePwm *state,
 		const char *msg,
 		Scheduler *executor,
 		brain_pin_e brainPin, OutputPin *output,
-		float frequency, float dutyCycle, pwm_gen_callback *callback = NULL);
+		float frequency, float dutyCycle, pwm_gen_callback *callback = nullptr);
 
 void startSimplePwmHard(SimplePwm *state, const char *msg,
 		Scheduler *executor,

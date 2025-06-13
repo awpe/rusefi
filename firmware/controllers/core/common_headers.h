@@ -11,12 +11,6 @@
 
 #include <rusefi/true_false.h>
 
-#ifdef __cplusplus
-#define EXTERNC extern "C"
-#else
-#define EXTERNC
-#endif
-
 #include "efifeatures.h"
 #include "rusefi_types.h"
 #include "efi_quote.h"

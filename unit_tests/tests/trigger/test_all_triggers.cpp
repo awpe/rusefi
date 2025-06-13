@@ -60,10 +60,10 @@ TEST_P(AllTriggersFixture, TestTrigger) {
 	printf("Exporting %s\r\n", getTrigger_type_e(tt));
 
 	persistent_config_s pc;
-	memset(&pc, 0, sizeof(pc));
+	pc = decltype(pc){};
 	Engine e;
-	Engine* engine = &e;
-	EngineTestHelperBase base(engine, &pc.engineConfiguration, &pc);
+	Engine* eng = &e;
+	EngineTestHelperBase base(eng, &pc.engineConfiguration, &pc);
 
 #if EFI_UNIT_TEST
 extern TriggerDecoderBase initState;

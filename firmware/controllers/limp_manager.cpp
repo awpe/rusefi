@@ -9,7 +9,7 @@
 #define CLEANUP_MODE_TPS 90
 
 #if EFI_SHAFT_POSITION_INPUT
-static bool noFiringUntilVvtSync(vvt_mode_e vvtMode) {
+static bool noFiringUntilVvtSync(vvt_mode_e /*vvtMode*/) {
 	auto operationMode = getEngineRotationState()->getOperationMode();
 
 	if (engineConfiguration->isPhaseSyncRequiredForIgnition) {

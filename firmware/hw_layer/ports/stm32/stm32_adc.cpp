@@ -64,7 +64,7 @@ brain_pin_e getAdcChannelBrainPin(const char *msg, adc_channel_e hwChannel) {
     return Gpio::Invalid;
 }
 
-bool adcIsMuxedInput(adc_channel_e hwChannel) {
+bool adcIsMuxedInput([[maybe_unused]] adc_channel_e hwChannel) {
 #ifdef ADC_MUX_PIN
     return ((hwChannel >= EFI_ADC_16) && (hwChannel <= EFI_ADC_31));
 #else

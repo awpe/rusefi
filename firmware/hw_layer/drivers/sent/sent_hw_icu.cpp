@@ -59,7 +59,7 @@ static void icuperiodcb(ICUDriver *icup, size_t index)
 	SENT_ISR_Handler(index, clocks, flags);
 }
 
-static void icuovercapture(ICUDriver *icup, size_t index)
+static void icuovercapture(ICUDriver* /*icup*/, size_t index)
 {
 	overcapture[index] = true;
 }

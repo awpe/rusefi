@@ -26,7 +26,7 @@ public class GetConfigValueConsumerTest {
 
     assertEquals(
       "float getConfigValueByName(const char *name) {\n" +
-        "\treturn EFI_ERROR_CODE;\n" +
+        "\treturn static_cast<float>(EFI_ERROR_CODE); // be aware that uint32 to float has rounding error!\n" +
         "}\n", getConfigValueConsumer.getCompleteGetterBody());
   }
 
@@ -77,7 +77,7 @@ public class GetConfigValueConsumerTest {
       "\t\tcase -1237776078:\n" +
       "\t\t\treturn config->iat.adcChannel;\n" +
       "\t}\n" +
-      "\treturn EFI_ERROR_CODE;\n" +
+      "\treturn static_cast<float>(EFI_ERROR_CODE); // be aware that uint32 to float has rounding error!\n" +
       "}\n" +
       "bool setConfigValueByName(const char *name, float value) {\n" +
       "\tint hash = djb2lowerCase(name);\n" +
@@ -107,7 +107,7 @@ public class GetConfigValueConsumerTest {
       "\t\tcase -1237776078:\n" +
       "\t\t\treturn config->iat.adcChannel;\n" +
       "\t}\n" +
-      "\treturn EFI_ERROR_CODE;\n" +
+      "\treturn static_cast<float>(EFI_ERROR_CODE); // be aware that uint32 to float has rounding error!\n" +
       "}\n", getConfigValueConsumer.getCompleteGetterBody());
   }
 
@@ -216,7 +216,7 @@ public class GetConfigValueConsumerTest {
       "\t\tcase -298185774:\n" +
       "\t\t\treturn config->enableFan1WithAc;\n" +
       "\t}\n" +
-      "\treturn EFI_ERROR_CODE;\n" +
+      "\treturn static_cast<float>(EFI_ERROR_CODE); // be aware that uint32 to float has rounding error!\n" +
       "}\n", getConfigValueConsumer.getHeaderAndGetter());
 
 

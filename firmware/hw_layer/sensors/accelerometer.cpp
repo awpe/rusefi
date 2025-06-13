@@ -170,7 +170,7 @@ class AccelController : public PeriodicController<UTILITY_THREAD_STACK_SIZE> {
 public:
 	AccelController() : PeriodicController("Acc SPI") { }
 private:
-	void PeriodicTask(efitick_t nowNt) override	{
+	void PeriodicTask(efitick_t /*nowNt*/) override	{
 		msg_t ret = MSG_RESET;
 		float acccooked[3];
 

@@ -170,7 +170,7 @@ Navigational Status			S=Safe C=Caution U=Unsafe V=Not valid
 static void nmea_parse_gprmc(char const * const nmea, loc_t *loc) {
 	char const * p = (char *)nmea;
 	char dStr[GPS_MAX_STRING];
-	efidatetime_t dt;
+	efidatetime_t dt{};
 
 	p = strchr(p, ',') + 1;					// read time
 	str_till_comma(p, dStr);

@@ -79,8 +79,8 @@ else
 endif
 
 # Generate dependency information
-CFLAGS   += -MD -MP -MF .dep/$(@F).d
-CPPFLAGS += -MD -MP -MF .dep/$(@F).d
+CFLAGS   += -MD -MP -MF .dep/$(@F).d -Wno-sign-compare
+CPPFLAGS += -MD -MP -MF .dep/$(@F).d -Wno-sign-compare
 
 # Paths where to search for sources
 VPATH     = $(SRCPATHS)
