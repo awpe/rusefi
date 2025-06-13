@@ -34,7 +34,7 @@ public class GetConfigValueConsumer implements ConfigurationConsumer {
     private static final String GET_METHOD_HEADER =
             "float getConfigValueByName(const char *name) {\n";
 
-    static final String GET_METHOD_FOOTER = "\treturn EFI_ERROR_CODE;\n" + "}\n";
+    static final String GET_METHOD_FOOTER = "\treturn static_cast<float>(EFI_ERROR_CODE); // be aware that uint32 to float has rounding error!\n" + "}\n";
     private static final String SET_METHOD_HEADER = "bool setConfigValueByName(const char *name, float value) {\n";
     private static final String SET_METHOD_FOOTER = "}\n";
     private final List<VariableRecord> variables = new ArrayList<>();

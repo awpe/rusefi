@@ -138,7 +138,7 @@ public class LiveDataProcessorTest {
             "\t\tcase -1605036797:\n" +
             "\t\t\treturn engine->outputChannels.lua.torqueReductionState;\n" +
             "\t}\n" +
-            "\treturn EFI_ERROR_CODE;\n" +
+            "\treturn static_cast<float>(EFI_ERROR_CODE); // be aware that uint32 to float has rounding error!\n" +
             "}\n",
             liveDataProcessor.getOutputLookupFileName());
 

@@ -10,14 +10,54 @@
 #include "pch.h"
 #include "trigger_input_adc.h"
 
+namespace TriggerAdcDetectorImpl {
+	// 4.7k||5.1k + 4.7k
+	static constexpr float triggerInputDividerCoefficient{1.52f}; // = analogInputDividerCoefficient
 
-/*static*/ TriggerAdcDetector trigAdcState;
+	triggerAdcSample_t adcDefaultThreshold;
+	triggerAdcSample_t adcMinThreshold;
+	triggerAdcSample_t adcMaxThreshold;
+
+	float triggerAdcITermCoef = 1600.0f;
+	float triggerAdcITermMin = 3.125e-8f;	// corresponds to rpm=25
+
+	int transitionCooldown = 5;
+
+	int analogToDigitalTransitionCnt;
+	int digitalToAnalogTransitionCnt;
+
+	triggerAdcMode_t curAdcMode = TRIGGER_ADC_NONE;
+	float adcThreshold = adcDefaultThreshold;
+	float triggerAdcITerm = triggerAdcITermMin;
+
+	// these thresholds allow to switch from ADC mode (low-rpm) to EXTI mode (fast-rpm), indicating the clamping of the signal
+	triggerAdcSample_t switchingThresholdLow = 0, switchingThresholdHigh = 0;
+	efidur_t minDeltaTimeForStableAdcDetectionNt = 0;
+	efidur_t stampCorrectionForAdc = 0;
+	int switchingCnt = 0, switchingTeethCnt = 0;
+	int prevValue = 0;	// not set
+	efitick_t prevStamp = 0;
+
+	// we need to distinguish between weak and strong signals because of different SNR and thresholds.
+	bool isSignalWeak = true;
+	int zeroThreshold = 0;
+
+	// the 'center' of the signal is variable, so we need to adjust the thresholds.
+	int minDeltaThresholdWeakSignal = 0, minDeltaThresholdStrongSignal = 0;
+
+	// this is the number of measurements while we store the counter before we reset to 'isSignalWeak'
+	int minDeltaThresholdCntPos = 0, minDeltaThresholdCntNeg = 0;
+	int integralSum = 0;
+	int transitionCooldownCnt = 0;
+
+	int modeSwitchCnt = 0;
+}
 
 #define DELTA_THRESHOLD_CNT_LOW (GPT_FREQ_FAST / GPT_PERIOD_FAST / 32)		// ~1/32 second?
 #define DELTA_THRESHOLD_CNT_HIGH (GPT_FREQ_FAST / GPT_PERIOD_FAST / 4)		// ~1/4 second?
 
 #if HAL_USE_ADC || EFI_UNIT_TEST
-#define triggerVoltsToAdcDivided(volts) (voltsToAdc(volts) / trigAdcState.triggerInputDividerCoefficient)
+#define triggerVoltsToAdcDivided(volts) (voltsToAdc(volts) / TriggerAdcDetectorImpl::triggerInputDividerCoefficient)
 #endif // HAL_USE_ADC || EFI_UNIT_TEST
 
 // hardware-dependent part
@@ -70,8 +110,8 @@ static ioportmask_t triggerInputPin;
 #endif /* PAL_MODE_EXTINT */
 
 void setTriggerAdcMode(triggerAdcMode_t adcMode) {
-	trigAdcState.curAdcMode = adcMode;
-	trigAdcState.modeSwitchCnt++;
+	TriggerAdcDetectorImpl::curAdcMode = adcMode;
+	TriggerAdcDetectorImpl::modeSwitchCnt++;
 
 	palSetPadMode(triggerInputPort, triggerInputPin,
 		(adcMode == TRIGGER_ADC_ADC) ? PAL_MODE_INPUT_ANALOG : PAL_MODE_EXTINT);
@@ -82,7 +122,7 @@ static void shaft_callback(void *arg, efitick_t stamp) {
 	ioline_t pal_line = (ioline_t)arg;
 	bool rise = (palReadLine(pal_line) == PAL_HIGH);
 
-	trigAdcState.digitalCallback(stamp, true, rise);
+	TriggerAdcDetector::digitalCallback(stamp, true, rise);
 }
 
 static void cam_callback(void *, efitick_t stamp) {
@@ -91,7 +131,7 @@ static void cam_callback(void *, efitick_t stamp) {
 
 void triggerAdcCallback(triggerAdcSample_t value) {
 	efitick_t stamp = getTimeNowNt();
-	trigAdcState.analogCallback(stamp, value);
+	TriggerAdcDetector::analogCallback(stamp, value);
 }
 
 #ifdef TRIGGER_ADC_DUMP_BUF
@@ -110,7 +150,7 @@ int adcTriggerTurnOnInputPin(const char *msg, int index, bool isTriggerShaft) {
 	brain_pin_e brainPin = isTriggerShaft ?
 		engineConfiguration->triggerInputPins[index] : engineConfiguration->camInputs[index];
 
-	trigAdcState.init();
+	TriggerAdcDetector::init();
 
 	triggerInputPort = getHwPort("trg", brainPin);
 	triggerInputPin = getHwPin("trg", brainPin);
@@ -178,18 +218,25 @@ void onTriggerChanged(efitick_t stamp, bool isPrimary, bool isRising) {
 
 #endif // EFI_SHAFT_POSITION_INPUT && HAL_TRIGGER_USE_ADC && HAL_USE_ADC
 
+#if EFI_UNIT_TEST
+void TriggerAdcDetector::setTriggerAdcMode(triggerAdcMode_t adcMode) {
+	TriggerAdcDetectorImpl::curAdcMode = adcMode;
+}
+
+triggerAdcMode_t TriggerAdcDetector::getTriggerAdcMode() {
+	return TriggerAdcDetectorImpl::curAdcMode;
+}
+#endif
 
 void TriggerAdcDetector::init() {
+	using namespace TriggerAdcDetectorImpl;
 #if ! EFI_SIMULATOR
 
 	// todo: move some of these to config
 
 #if HAL_USE_ADC || EFI_UNIT_TEST
-	// 4.7k||5.1k + 4.7k
-	triggerInputDividerCoefficient = 1.52f;	// = analogInputDividerCoefficient
-
 	// we need to make at least minNumAdcMeasurementsPerTooth for 1 tooth (i.e. between two consequent events)
-	const int minNumAdcMeasurementsPerTooth = 10; // for 60-2 wheel: 1/(10*2*60/10000/60) = 500 RPM
+	constexpr int minNumAdcMeasurementsPerTooth = 10; // for 60-2 wheel: 1/(10*2*60/10000/60) = 500 RPM
 	minDeltaTimeForStableAdcDetectionNt = US2NT(US_PER_SECOND_LL * minNumAdcMeasurementsPerTooth * GPT_PERIOD_FAST / GPT_FREQ_FAST);
 	// we assume that the transition occurs somewhere in the middle of the measurement period, so we take the half of it
 	stampCorrectionForAdc = US2NT(US_PER_SECOND_LL * GPT_PERIOD_FAST / GPT_FREQ_FAST / 2);
@@ -220,6 +267,8 @@ void TriggerAdcDetector::init() {
 }
 
 void TriggerAdcDetector::reset() {
+	using namespace TriggerAdcDetectorImpl;
+
 	switchingCnt = 0;
 	switchingTeethCnt = 0;
 #if HAL_USE_ADC || EFI_UNIT_TEST
@@ -242,6 +291,8 @@ void TriggerAdcDetector::reset() {
 }
 
 void TriggerAdcDetector::digitalCallback(efitick_t stamp, bool isPrimary, bool rise) {
+	using namespace TriggerAdcDetectorImpl;
+
 #if !EFI_SIMULATOR && EFI_SHAFT_POSITION_INPUT
 	if (curAdcMode != TRIGGER_ADC_EXTI) {
 		return;
@@ -266,7 +317,7 @@ void TriggerAdcDetector::digitalCallback(efitick_t stamp, bool isPrimary, bool r
 		if (switchingTeethCnt++ > 3) {
 			switchingTeethCnt = 0;
 			prevValue = rise ? 1: -1;
-			setTriggerAdcMode(TRIGGER_ADC_ADC);
+			TriggerAdcDetector::setTriggerAdcMode(TRIGGER_ADC_ADC);
 		}
 	}
 #endif // (HAL_TRIGGER_USE_ADC && HAL_USE_ADC) || EFI_UNIT_TEST
@@ -276,6 +327,8 @@ void TriggerAdcDetector::digitalCallback(efitick_t stamp, bool isPrimary, bool r
 }
 
 void TriggerAdcDetector::analogCallback([[maybe_unused]] efitick_t stamp, [[maybe_unused]] triggerAdcSample_t value) {
+	using namespace TriggerAdcDetectorImpl;
+
 #if ! EFI_SIMULATOR && ((HAL_TRIGGER_USE_ADC && HAL_USE_ADC) || EFI_UNIT_TEST)
 	if (curAdcMode != TRIGGER_ADC_ADC) {
 		return;
@@ -399,7 +452,7 @@ void TriggerAdcDetector::analogCallback([[maybe_unused]] efitick_t stamp, [[mayb
 		if (switchingTeethCnt++ > 3) {
 			switchingTeethCnt = 0;
 
-			setTriggerAdcMode(TRIGGER_ADC_EXTI);
+			TriggerAdcDetector::setTriggerAdcMode(TRIGGER_ADC_EXTI);
 
 			// we don't want to loose the signal on return
 			minDeltaThresholdCntPos = DELTA_THRESHOLD_CNT_HIGH;
@@ -424,6 +477,8 @@ void TriggerAdcDetector::analogCallback([[maybe_unused]] efitick_t stamp, [[mayb
 }
 
 void TriggerAdcDetector::setWeakSignal(bool isWeak) {
+	using namespace TriggerAdcDetectorImpl;
+
 #if HAL_USE_ADC || EFI_UNIT_TEST
 	isSignalWeak = isWeak;
 	if (!isSignalWeak) {
@@ -434,14 +489,14 @@ void TriggerAdcDetector::setWeakSignal(bool isWeak) {
 #endif // HAL_USE_ADC || EFI_UNIT_TEST
 }
 
-triggerAdcMode_t getTriggerAdcMode(void) {
-	return trigAdcState.curAdcMode;
+triggerAdcMode_t getTriggerAdcMode() {
+	return TriggerAdcDetectorImpl::curAdcMode;
 }
 
-float getTriggerAdcThreshold(void) {
-	return trigAdcState.adcThreshold;
+float getTriggerAdcThreshold() {
+	return TriggerAdcDetectorImpl::adcThreshold;
 }
 
-int getTriggerAdcModeCnt(void) {
-	return trigAdcState.modeSwitchCnt;
+int getTriggerAdcModeCnt() {
+	return TriggerAdcDetectorImpl::modeSwitchCnt;
 }

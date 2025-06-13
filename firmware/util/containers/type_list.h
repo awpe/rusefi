@@ -1,10 +1,15 @@
 #pragma once
 
+#include <type_traits>
+
 /*
  * Indicates that a member of type_list should be able to be replaced in a unit test.
  */
 template<typename base_t>
 struct Mockable;
+
+template<typename... Ts>
+struct type_list_impl;
 
 /*
  * Instantiates each type, allowing you to fetch by type.
@@ -26,11 +31,20 @@ struct Mockable;
  * T & unmock<T>();
  */
 template<typename base_t, typename... tail_t>
-struct type_list {
-    type_list<base_t> first;
-    type_list<tail_t...> others;
+struct type_list_impl<base_t, tail_t...> {
+    type_list_impl<base_t> first;
+    type_list_impl<tail_t...> others;
 
-    static_assert(!decltype(others)::template has<base_t>(), "Each type can only be listed once.");
+    /*
+     * Returns whether has_t exists in the type list
+     *
+     * has_t should not be Mockable, it should be the actual type.
+     */
+    template<typename has_t>
+    static constexpr bool has() {
+        return decltype(first)::template has<has_t>() ||
+               decltype(others)::template has<has_t>();
+    }
 
     /*
      * Call the given function on the unmocked version of each type.
@@ -72,47 +86,46 @@ struct type_list {
      *
      * The return type is type_list<get_t> or type_list<Mockable<get_t>>
      */
+private:
     template<typename get_t>
-    constexpr auto get() -> std::enable_if_t<decltype(first)::template has<get_t>(),
-                                             decltype(first.template get<get_t>())> {
+    constexpr auto& get_impl(std::true_type) {
         return first.template get<get_t>();
     }
 
     template<typename get_t>
-    constexpr auto get() const -> std::enable_if_t<decltype(first)::template has<get_t>(),
-                                                   decltype(first.template get<get_t>())> {
+    constexpr auto& get_impl(std::false_type) {
+        return others.template get<get_t>();
+    }
+
+    template<typename get_t>
+    constexpr auto const& get_impl(std::true_type) const {
         return first.template get<get_t>();
     }
 
     template<typename get_t>
-    constexpr auto get() -> std::enable_if_t<!decltype(first)::template has<get_t>(),
-                                             decltype(others.template get<get_t>())> {
+    constexpr auto const& get_impl(std::false_type) const {
         return others.template get<get_t>();
+    }
+
+public:
+    template<typename get_t>
+    constexpr auto& get() {
+        return get_impl<get_t>(std::bool_constant<decltype(first)::template has<get_t>()>{});
     }
 
     template<typename get_t>
-    constexpr auto get() const -> std::enable_if_t<!decltype(first)::template has<get_t>(),
-                                                   decltype(others.template get<get_t>())> {
-        return others.template get<get_t>();
+    constexpr auto const& get() const {
+        return get_impl<get_t>(std::bool_constant<decltype(first)::template has<get_t>()>{});
     }
 
-    /*
-     * Returns whether has_t exists in the type list
-     *
-     * has_t should not be Mockable, it should be the actual type.
-     */
-    template<typename has_t>
-    static constexpr bool has() {
-        return decltype(first)::template has<has_t>() ||
-               decltype(others)::template has<has_t>();
-    }
+
 };
 
 /*
  * Specialization of type_list for a single base_t (that is not Mockable<>).
  */
 template<typename base_t>
-struct type_list<base_t> {
+struct type_list_impl<base_t> {
 private:
     base_t me;
 
@@ -196,7 +209,7 @@ struct type_list<Mockable<base_t>> : type_list<base_t> {
  * Unit test/simulator specialization of type_list for a single Mockable<base_t>.
  */
 template<typename base_t>
-struct type_list<Mockable<base_t>> {
+struct type_list_impl<Mockable<base_t>> {
 private:
     // Dynamically allocate so that ASAN can detect overflows for us
     std::unique_ptr<base_t> me = std::make_unique<base_t>();
@@ -272,3 +285,42 @@ public:
 };
 
 #endif // EFI_UNIT_TEST
+
+template<>
+struct type_list_impl<> {
+    template<typename>
+    static constexpr bool has() {
+        return false;
+    }
+};
+
+// Compile-time duplicate checker
+template<typename...>
+struct contains;
+
+template<typename T>
+struct contains<T> : std::false_type {};
+
+template<typename T, typename U, typename... Rest>
+struct contains<T, U, Rest...>
+    : std::conditional_t<std::is_same_v<T, U>, std::true_type, contains<T, Rest...>> {};
+
+template<typename... Ts>
+struct check_unique_types;
+
+template<>
+struct check_unique_types<> {
+    static constexpr bool value = true;
+};
+
+template<typename T, typename... Ts>
+struct check_unique_types<T, Ts...> {
+    static_assert(!contains<T, Ts...>::value, "Duplicate type in type_list");
+    static constexpr bool value = check_unique_types<Ts...>::value;
+};
+
+// Public API wrapper
+template<typename... Ts>
+struct type_list : type_list_impl<Ts...> {
+    static_assert(check_unique_types<Ts...>::value, "Duplicates not allowed in type_list");
+};

@@ -82,9 +82,8 @@ FILE *jsonTrace = nullptr;
 EngineTestHelper::EngineTestHelper(engine_type_e engineType, configuration_callback_t configurationCallback, const std::unordered_map<SensorType, float>& sensorValues) :
 	EngineTestHelperBase(&engine, &persistentConfig.engineConfiguration, &persistentConfig)
 {
-	memset(&persistentConfig, 0, sizeof(persistentConfig));
-	memset(&pinRepository, 0, sizeof(pinRepository));
-
+	persistentConfig = decltype(persistentConfig){};
+	pinRepository = decltype(pinRepository){};
 
 	auto testInfo = ::testing::UnitTest::GetInstance()->current_test_info();
 extern bool hasInitGtest;
@@ -120,7 +119,7 @@ extern bool hasInitGtest;
 		Sensor::setMockValue(s, v);
 	}
 
-	memset(&activeConfiguration, 0, sizeof(activeConfiguration));
+	activeConfiguration = engine_configuration_s{};
 
 	enginePins.reset();
 	enginePins.unregisterPins();
@@ -221,7 +220,7 @@ EngineTestHelper::~EngineTestHelper() {
 
 	// Cleanup
   	// reset config to an invalid state, will trigger isPinConfigurationChanged
-	memset(&persistentConfig, 0, sizeof(persistentConfig));
+	persistentConfig = decltype(persistentConfig){};
 	enginePins.reset();
 	enginePins.unregisterPins();
 	Sensor::resetRegistry();

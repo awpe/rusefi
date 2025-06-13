@@ -8,12 +8,11 @@
  */
  
 #pragma once
+
 #include "global.h"
 #include "trigger_input.h"
-#include "adc_inputs.h"
 
-class TriggerAdcDetector {
-public:
+namespace TriggerAdcDetector {
 	void init();
 	void reset();
 
@@ -22,44 +21,9 @@ public:
 
 	void setWeakSignal(bool isWeak);
 
-public:
-	triggerAdcSample_t adcDefaultThreshold;
-	triggerAdcSample_t adcMinThreshold;
-	triggerAdcSample_t adcMaxThreshold;
-
-	float triggerInputDividerCoefficient;
-
-	float triggerAdcITermCoef = 1600.0f;
-	float triggerAdcITermMin = 3.125e-8f;	// corresponds to rpm=25
-
-	int transitionCooldown = 5;
-
-	int analogToDigitalTransitionCnt;
-	int digitalToAnalogTransitionCnt;
-
-	triggerAdcMode_t curAdcMode = TRIGGER_ADC_NONE;
-	float adcThreshold = adcDefaultThreshold;
-	float triggerAdcITerm = triggerAdcITermMin;
-
-	// these thresholds allow to switch from ADC mode (low-rpm) to EXTI mode (fast-rpm), indicating the clamping of the signal 
-	triggerAdcSample_t switchingThresholdLow = 0, switchingThresholdHigh = 0;
-	efidur_t minDeltaTimeForStableAdcDetectionNt = 0;
-	efidur_t stampCorrectionForAdc = 0;
-	int switchingCnt = 0, switchingTeethCnt = 0;
-	int prevValue = 0;	// not set
-	efitick_t prevStamp = 0;
-
-	// we need to distinguish between weak and strong signals because of different SNR and thresholds.
-	bool isSignalWeak = true;
-	int zeroThreshold = 0;
-
-	// the 'center' of the signal is variable, so we need to adjust the thresholds.
-	int minDeltaThresholdWeakSignal = 0, minDeltaThresholdStrongSignal = 0;
-
-	// this is the number of measurements while we store the counter before we reset to 'isSignalWeak'
-	int minDeltaThresholdCntPos = 0, minDeltaThresholdCntNeg = 0;
-	int integralSum = 0;
-	int transitionCooldownCnt = 0;
-
-	int modeSwitchCnt = 0;
+#if EFI_UNIT_TEST
+	void setTriggerAdcMode(triggerAdcMode_t adcMode);
+	triggerAdcMode_t getTriggerAdcMode();
+	efidur_t getStampCorrectionForAdc();
+#endif
 };
