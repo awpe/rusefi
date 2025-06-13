@@ -89,9 +89,9 @@ EngineTestHelper::EngineTestHelper(engine_type_e engineType, configuration_callb
 	extern bool hasInitGtest;
 	if (hasInitGtest) {
 		#if IS_WINDOWS_COMPILER
-		mkdir(TEST_RESULTS_DIR);
+		  mkdir(TEST_RESULTS_DIR);
 		#else
-		mkdir(TEST_RESULTS_DIR, 0777);
+		  mkdir(TEST_RESULTS_DIR, 0777);
 		#endif
 		createUnitTestLog();
 
@@ -450,7 +450,7 @@ void EngineTestHelper::spin60_2UntilDeg(struct testSpinEngineUntilData& spinInfo
   	volatile float tick_per_deg = 6000 * 60 / 360 / (float)targetRpm;
 	constexpr float tooth_per_deg = 360 / 60;
 
-	auto targetTooth = static_cast<size_t>((targetDegree - spinInfo.currentDegree) / tooth_per_deg);
+	size_t targetTooth = (targetDegree - spinInfo.currentDegree) / tooth_per_deg;
 
 	for (size_t i = 0; i < targetTooth; i++) {
 		if (spinInfo.currentTooth < 30 || spinInfo.currentTooth > 31) {
