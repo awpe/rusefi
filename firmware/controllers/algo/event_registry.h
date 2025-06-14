@@ -80,6 +80,7 @@ public:
 	 * Sequential number of currently processed spark event
 	 * @see engineState.globalSparkCounter
 	 */
+	// TODO: Like counter can go negative? why not unsigned?
 	int sparkCounter = 0;
 	/**
 	 * [0, cylindersCount)
