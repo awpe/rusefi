@@ -127,7 +127,7 @@ public:
 			static_assert(alignof(std::remove_pointer_t<Arg>) >= 2, "Pointer must be at least 2-aligned");
 			static_assert(sizeof(uintptr_t) == sizeof(void*), "Unexpected uintptr_t size");
 		}
-		#ifdef EFI_UNIT_TEST
+		#if EFI_UNIT_TEST
 			return action_s(&trampoline<Func, Arg>, to_uintptr(arg), __PRETTY_FUNCTION__);
 		#else
 			return action_s(&trampoline<Func, Arg>, to_uintptr(arg));
@@ -138,7 +138,7 @@ public:
 	template<auto Func>
 	static constexpr action_s make() noexcept(std::is_nothrow_constructible_v<action_s, schfunc_t>) {
 		static_assert(std::is_invocable_r_v<void, decltype(Func)>, "Function signature mismatch");
-		#ifdef EFI_UNIT_TEST
+		#if EFI_UNIT_TEST
 			return action_s(&trampoline0<Func>, __PRETTY_FUNCTION__);
 		#else
 			return action_s(&trampoline0<Func>);
@@ -152,7 +152,7 @@ public:
 			#ifdef WE_HAVE_CRITICAL_ERROR_METHOD
 			efiCriticalError("clear nullptr");
 			#endif
-			#ifdef EFI_UNIT_TEST
+			#if EFI_UNIT_TEST
 			assert(false);
 			#endif
 		}
@@ -170,7 +170,7 @@ public:
 		return m_callback == other.m_callback && m_param == other.m_param;
 	}
 
-#ifdef EFI_UNIT_TEST
+#if EFI_UNIT_TEST
 	[[nodiscard]] constexpr char const* getCallbackName() const { return fn_name ? fn_name : "nullptr"; }
 #endif
 
@@ -179,7 +179,7 @@ private:
 	uintptr_t m_param{};
 
 	// We want to have callback name in tests for easy debug
-#ifdef EFI_UNIT_TEST
+#if EFI_UNIT_TEST
 	char const* fn_name{};
 	constexpr action_s(const schfunc_t callback, char const* const fn_name_) noexcept : m_callback(callback), fn_name{fn_name_} {}
 	constexpr action_s(const schfunc_t callback, const uintptr_t param, char const* const fn_name_) noexcept : m_callback(callback), m_param(param), fn_name{fn_name_} {}
