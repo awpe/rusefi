@@ -23,11 +23,16 @@ inline int time2print(int64_t time) {
   return static_cast<int>(time);
 }
 
+// For the sole purpose of satisfying weird Mac OS compiler libs definitions...
 constexpr bool constexpr_isfinite(float f) {
   static_assert(__cplusplus < 202302L, "If in c++23 replace by std::isfinite which is then constexpr");
-  uint32_t const bits{ std::bit_cast<uint32_t>(f) };
-  uint32_t const exponent{ (bits >> 23) & 0xFF };
-  return exponent != 0xFF; // 0xFF means NaN or Inf
+  const union {
+    float f;
+    uint32_t u;
+  } pun = { f };
+
+  uint32_t const exponent{ (pun.u >> 23) & 0xFF };
+  return exponent != 0xFF; // 0xFF means Inf or NaN
 }
 
 constexpr bool _assertFloatFitsInto32BitsAndCast(float value) {
