@@ -23,6 +23,13 @@ inline int time2print(int64_t time) {
   return static_cast<int>(time);
 }
 
+constexpr bool constexpr_isfinite(float f) {
+  static_assert(__cplusplus < 202302L, "If in c++23 replace by std::isfinite which is then constexpr");
+  uint32_t const bits{ std::bit_cast<uint32_t>(f) };
+  uint32_t const exponent{ (bits >> 23) & 0xFF };
+  return exponent != 0xFF; // 0xFF means NaN or Inf
+}
+
 constexpr bool _assertFloatFitsInto32BitsAndCast(float value) {
   constexpr auto FirstUnrepresentableBigFloat = static_cast<float>(INT32_MAX);
   constexpr auto kInt32MinF = static_cast<float>(INT32_MIN);
@@ -34,7 +41,7 @@ constexpr bool _assertFloatFitsInto32BitsAndCast(float value) {
   // So if someone using corner value of max int for smth like invalid float
   // we might accidentally give green light if we are not strictly under 2147483648.0
   // i.e. do not change this check to implicit convertion int->float with non strict condition!
-  return std::isfinite(value) && value >= kInt32MinF && value < FirstUnrepresentableBigFloat;
+  return constexpr_isfinite(value) && value >= kInt32MinF && value < FirstUnrepresentableBigFloat;
 }
 
 static_assert(_assertFloatFitsInto32BitsAndCast(INT32_MAX) == false);

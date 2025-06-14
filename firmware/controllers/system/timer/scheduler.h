@@ -8,7 +8,6 @@
 
 #if EFI_UNIT_TEST
 #include <cassert>
-#include <rusefi/rusefi_time_math.h>
 #endif
 
 template<class To, class From>
@@ -241,6 +240,10 @@ struct scheduling_s {
   }
 
 #if EFI_UNIT_TEST
+	#ifndef NT2US
+		#define NT2US(x) ((x) / US_TO_NT_MULTIPLIER)
+	#endif
+
 	[[nodiscard]] efitick_t getMomentUs() const {
 		return NT2US(momentNt);
 	}
