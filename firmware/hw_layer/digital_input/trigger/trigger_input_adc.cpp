@@ -219,12 +219,20 @@ void onTriggerChanged(efitick_t stamp, bool isPrimary, bool isRising) {
 #endif // EFI_SHAFT_POSITION_INPUT && HAL_TRIGGER_USE_ADC && HAL_USE_ADC
 
 #if EFI_UNIT_TEST
+void setTriggerAdcMode(triggerAdcMode_t adcMode) {
+	TriggerAdcDetector::setTriggerAdcMode(adcMode);
+}
+
 void TriggerAdcDetector::setTriggerAdcMode(triggerAdcMode_t adcMode) {
 	TriggerAdcDetectorImpl::curAdcMode = adcMode;
 }
 
 triggerAdcMode_t TriggerAdcDetector::getTriggerAdcMode() {
 	return TriggerAdcDetectorImpl::curAdcMode;
+}
+
+efidur_t TriggerAdcDetector::getStampCorrectionForAdc() {
+	return TriggerAdcDetectorImpl::stampCorrectionForAdc;
 }
 #endif
 

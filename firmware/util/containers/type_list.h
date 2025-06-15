@@ -9,7 +9,7 @@ template<typename base_t>
 struct Mockable;
 
 template<typename... Ts>
-struct type_list_impl;
+struct type_list;
 
 /*
  * Instantiates each type, allowing you to fetch by type.
@@ -31,9 +31,21 @@ struct type_list_impl;
  * T & unmock<T>();
  */
 template<typename base_t, typename... tail_t>
-struct type_list_impl<base_t, tail_t...> {
-    type_list_impl<base_t> first;
-    type_list_impl<tail_t...> others;
+struct type_list<base_t, tail_t...> {
+    type_list<base_t> first;
+    type_list<tail_t...> others;
+
+    static_assert(!decltype(others)::template has<base_t>(), "Each type can only be listed once.");
+
+    template<typename count_t>
+    static consteval size_t count() {
+        return decltype(first)::template count<count_t>() +
+               decltype(others)::template count<count_t>();
+    }
+
+    static consteval size_t count() {
+        return 1 + decltype(others)::count();
+    }
 
     /*
      * Returns whether has_t exists in the type list
@@ -41,7 +53,7 @@ struct type_list_impl<base_t, tail_t...> {
      * has_t should not be Mockable, it should be the actual type.
      */
     template<typename has_t>
-    static constexpr bool has() {
+    static consteval bool has() {
         return decltype(first)::template has<has_t>() ||
                decltype(others)::template has<has_t>();
     }
@@ -53,13 +65,13 @@ struct type_list_impl<base_t, tail_t...> {
      * tl.apply_all([](auto & m) { m.WhateverFuncIWant(); });
      */
     template<typename func_t>
-    void apply_all(func_t const & f) {
+    void constexpr apply_all(func_t const & f) {
         first.apply_all(f);
         others.apply_all(f);
     }
 
     template<typename func_t>
-    void apply_all(func_t const & f) const {
+    void constexpr apply_all(func_t const & f) const {
         first.apply_all(f);
         others.apply_all(f);
     }
@@ -68,12 +80,12 @@ struct type_list_impl<base_t, tail_t...> {
     // The specified seed value is used as the initial accumulator value,
     // and the specified function is used to select the result value.
     template<typename return_t, typename func_t>
-    auto aggregate(func_t const& accumulator, return_t seed) {
+    decltype(auto) aggregate(func_t const& accumulator, return_t seed) {
         return others.aggregate(accumulator, first.aggregate(accumulator, seed));
     }
 
     template<typename return_t, typename func_t>
-    auto aggregate(func_t const& accumulator, return_t seed) const {
+    decltype(auto) aggregate(func_t const& accumulator, return_t seed) const {
         return others.aggregate(accumulator, first.aggregate(accumulator, seed));
     }
 
@@ -86,106 +98,101 @@ struct type_list_impl<base_t, tail_t...> {
      *
      * The return type is type_list<get_t> or type_list<Mockable<get_t>>
      */
-private:
     template<typename get_t>
-    constexpr auto& get_impl(std::true_type) {
-        return first.template get<get_t>();
+    constexpr decltype(auto) get() {
+        static_assert(has<get_t>(), "Type not found in type_list");
+        if constexpr (decltype(first)::template has<get_t>()) {
+            return first.template get<get_t>();
+        } else {
+            return others.template get<get_t>();
+        }
     }
 
     template<typename get_t>
-    constexpr auto& get_impl(std::false_type) {
-        return others.template get<get_t>();
+    constexpr decltype(auto) get() const {
+        static_assert(has<get_t>(), "Type not found in type_list");
+        if constexpr (decltype(first)::template has<get_t>()) {
+            return first.template get<get_t>();
+        } else {
+            return others.template get<get_t>();
+        }
     }
-
-    template<typename get_t>
-    constexpr auto const& get_impl(std::true_type) const {
-        return first.template get<get_t>();
-    }
-
-    template<typename get_t>
-    constexpr auto const& get_impl(std::false_type) const {
-        return others.template get<get_t>();
-    }
-
-public:
-    template<typename get_t>
-    constexpr auto& get() {
-        return get_impl<get_t>(std::bool_constant<decltype(first)::template has<get_t>()>{});
-    }
-
-    template<typename get_t>
-    constexpr auto const& get() const {
-        return get_impl<get_t>(std::bool_constant<decltype(first)::template has<get_t>()>{});
-    }
-
-
 };
 
 /*
  * Specialization of type_list for a single base_t (that is not Mockable<>).
  */
 template<typename base_t>
-struct type_list_impl<base_t> {
+struct type_list<base_t> {
 private:
     base_t me;
 
 public:
+    template<typename count_t>
+    static consteval size_t count() {
+        return std::is_same_v<base_t, count_t> ? 1 : 0;
+    }
+
+    static consteval size_t count() {
+        return 1;
+    }
+
     template<typename func_t>
-    void apply_all(func_t const & f) {
+    void constexpr apply_all(func_t const & f) {
         f(me);
     }
 
     template<typename func_t>
-    void apply_all(func_t const & f) const {
+    void constexpr apply_all(func_t const & f) const {
         f(me);
     }
 
     template<typename return_t, typename func_t>
-    auto aggregate(func_t const& accumulator, return_t seed) {
+    decltype(auto) aggregate(func_t const& accumulator, return_t seed) {
         return accumulator(me, seed);
     }
 
     template<typename return_t, typename func_t>
-    auto aggregate(func_t const& accumulator, return_t seed) const {
+    decltype(auto) aggregate(func_t const& accumulator, return_t seed) const {
         return accumulator(me, seed);
     }
 
     template<typename has_t>
-    static constexpr bool has() {
+    static consteval bool has() {
         return std::is_same_v<has_t, base_t>;
     }
 
     template<typename get_t, typename = std::enable_if_t<has<get_t>()>>
-    constexpr auto & get() {
+    constexpr auto& get() {
         return *this;
     }
 
     template<typename get_t, typename = std::enable_if_t<has<get_t>()>>
-    constexpr auto const & get() const {
+    constexpr auto const& get() const {
         return *this;
     }
 
-    constexpr auto & unmock() {
+    constexpr auto& unmock() {
         return me;
     }
 
-    constexpr auto const & unmock() const {
+    constexpr auto const& unmock() const {
         return me;
     }
 
-    constexpr base_t * operator->() {
+    constexpr auto operator->() {
         return &me;
     }
 
-    constexpr base_t const * operator->() const {
+    constexpr auto operator->() const {
         return &me;
     }
 
-    constexpr base_t & operator*() {
+    constexpr auto& operator*() {
         return me;
     }
 
-    constexpr base_t const & operator*() const {
+    constexpr auto const& operator*() const {
         return me;
     }
 };
@@ -209,57 +216,67 @@ struct type_list<Mockable<base_t>> : type_list<base_t> {
  * Unit test/simulator specialization of type_list for a single Mockable<base_t>.
  */
 template<typename base_t>
-struct type_list_impl<Mockable<base_t>> {
+struct type_list<Mockable<base_t>> {
 private:
     // Dynamically allocate so that ASAN can detect overflows for us
     std::unique_ptr<base_t> me = std::make_unique<base_t>();
-    typename base_t::interface_t * cur = me.get();
+    using interface_t = typename base_t::interface_t;
+    interface_t* cur = me.get();
 
 public:
+    template<typename count_t>
+    static consteval size_t count() {
+        return std::is_same_v<base_t, count_t> ? 1 : 0;
+    }
+
+    static consteval size_t count() {
+        return 1;
+    }
+
     template<typename func_t>
-    void apply_all(func_t const & f) {
+    void constexpr apply_all(func_t const & f) {
         f(*me);
     }
 
     template<typename func_t>
-    void apply_all(func_t const & f) const {
+    void constexpr apply_all(func_t const & f) const {
         f(*me);
     }
 
     template<typename return_t, typename func_t>
-    auto aggregate(func_t const& accumulator, return_t seed) {
+    decltype(auto) aggregate(func_t const& accumulator, return_t seed) {
         return accumulator(*me, seed);
     }
 
     template<typename return_t, typename func_t>
-    auto aggregate(func_t const& accumulator, return_t seed) const {
+    decltype(auto) aggregate(func_t const& accumulator, return_t seed) const {
         return accumulator(*me, seed);
     }
 
     template<typename has_t>
-    static constexpr bool has() {
+    static consteval bool has() {
         return std::is_same_v<has_t, base_t>;
     }
 
     template<typename get_t, typename = std::enable_if_t<has<get_t>()>>
-    constexpr auto & get() {
+    constexpr auto& get() {
         return *this;
     }
 
     template<typename get_t, typename = std::enable_if_t<has<get_t>()>>
-    constexpr auto const & get() const {
+    constexpr auto const& get() const {
         return *this;
     }
 
-    auto & unmock() {
+    auto& unmock() {
         return *me;
     }
 
-    auto const & unmock() const {
+    auto const& unmock() const {
         return *me;
     }
 
-    void set(typename base_t::interface_t * ptr) {
+    void constexpr set(interface_t* ptr) {
         if (ptr) {
             cur = ptr;
         } else {
@@ -267,60 +284,21 @@ public:
         }
     }
 
-    constexpr auto * operator->() {
+    constexpr interface_t* operator->() {
         return cur;
     }
 
-    constexpr auto const * operator->() const {
+    constexpr interface_t const* operator->() const {
         return cur;
     }
 
-    constexpr auto & operator*() {
+    constexpr interface_t& operator*() {
         return *cur;
     }
 
-    constexpr auto const & operator*() const {
+    constexpr interface_t const& operator*() const {
         return *cur;
     }
 };
 
 #endif // EFI_UNIT_TEST
-
-template<>
-struct type_list_impl<> {
-    template<typename>
-    static constexpr bool has() {
-        return false;
-    }
-};
-
-// Compile-time duplicate checker
-template<typename...>
-struct contains;
-
-template<typename T>
-struct contains<T> : std::false_type {};
-
-template<typename T, typename U, typename... Rest>
-struct contains<T, U, Rest...>
-    : std::conditional_t<std::is_same_v<T, U>, std::true_type, contains<T, Rest...>> {};
-
-template<typename... Ts>
-struct check_unique_types;
-
-template<>
-struct check_unique_types<> {
-    static constexpr bool value = true;
-};
-
-template<typename T, typename... Ts>
-struct check_unique_types<T, Ts...> {
-    static_assert(!contains<T, Ts...>::value, "Duplicate type in type_list");
-    static constexpr bool value = check_unique_types<Ts...>::value;
-};
-
-// Public API wrapper
-template<typename... Ts>
-struct type_list : type_list_impl<Ts...> {
-    static_assert(check_unique_types<Ts...>::value, "Duplicates not allowed in type_list");
-};

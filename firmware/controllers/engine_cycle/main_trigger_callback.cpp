@@ -169,6 +169,12 @@ void InjectionEvent::onTriggerTooth(efitick_t nowNt, float currentPhase, float n
 		endActionStage1 = { &endSimultaneousInjection, this };
 	} else {
 		uintptr_t startActionPtr = reinterpret_cast<uintptr_t>(this);
+		static_assert(alignof(InjectionEvent) >= 2, "InjectionEvent not aligned for pointer tagging!");
+
+#if EFI_UNIT_TEST
+		assert(reinterpret_cast<uintptr_t>(startActionPtr) % alignof(InjectionEvent) == 0);
+		assert((startActionPtr & 1) == 0 && "InjectionEvent pointer must have LSB == 0");
+#endif
 
 		if (hasStage2Injection) {
 			// Set the low bit in the arg if there's a secondary injection to start too
