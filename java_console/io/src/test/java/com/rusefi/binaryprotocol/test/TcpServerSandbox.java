@@ -7,7 +7,6 @@ import com.rusefi.Listener;
 import com.rusefi.binaryprotocol.BinaryProtocol;
 import com.rusefi.binaryprotocol.IncomingDataBuffer;
 import com.rusefi.config.generated.Integration;
-import com.rusefi.config.generated.TsOutputs;
 import com.rusefi.config.generated.VariableRegistryValues;
 import com.rusefi.io.IoStream;
 import com.rusefi.io.commands.ByteRange;
@@ -33,8 +32,8 @@ import static com.rusefi.io.tcp.BinaryProtocolServer.getOutputCommandResponse;
  * @see BinaryProtocolServerSandbox what's the difference?
  */
 public class TcpServerSandbox {
-    private final static byte[] TOTALLY_EMPTY_CONFIGURATION = new byte[IniFileModeSingleton.getInstance().getMetaInfo().getTotalSize()];
-
+    private final static byte[] TOTALLY_EMPTY_CONFIGURATION = new byte[IniFileModeSingleton.getInstance().getMetaInfo().getPageSize(0)];
+/*
     public static void main(String[] args) throws IOException {
         Listener serverSocketCreationCallback = parameter -> System.out.println("serverSocketCreationCallback");
         CompatibleFunction<Socket, Runnable> socketRunnableFactory = new CompatibleFunction<Socket, Runnable>() {
@@ -172,4 +171,5 @@ public class TcpServerSandbox {
     private static int getByte(int startOffset) {
         return TOTALLY_EMPTY_CONFIGURATION[startOffset] & 0xFF;
     }
+ */
 }

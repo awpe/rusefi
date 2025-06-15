@@ -23,6 +23,20 @@ inline int time2print(int64_t time) {
   return static_cast<int>(time);
 }
 
+// For the sole purpose of satisfying weird Mac OS + some Win compilers' stdlibs impl...
+constexpr bool constexpr_isfinite(float f) {
+#if __cplusplus >= 202302L
+  // In C++23, std::isfinite is officially constexpr
+  return std::isfinite(f);
+#elif defined(_WIN32) || defined(__APPLE__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__MINGW64__)
+  // On Windows and macOS, std::isfinite might not be constexpr pre-C++23
+  return true;
+#else
+  // This is meant to correspond to normal/target platforms
+  return std::isfinite(f);
+#endif
+}
+
 constexpr bool _assertFloatFitsInto32BitsAndCast(float value) {
   constexpr auto FirstUnrepresentableBigFloat = static_cast<float>(INT32_MAX);
   constexpr auto kInt32MinF = static_cast<float>(INT32_MIN);
@@ -34,7 +48,7 @@ constexpr bool _assertFloatFitsInto32BitsAndCast(float value) {
   // So if someone using corner value of max int for smth like invalid float
   // we might accidentally give green light if we are not strictly under 2147483648.0
   // i.e. do not change this check to implicit convertion int->float with non strict condition!
-  return std::isfinite(value) && value >= kInt32MinF && value < FirstUnrepresentableBigFloat;
+  return constexpr_isfinite(value) && value >= kInt32MinF && value < FirstUnrepresentableBigFloat;
 }
 
 static_assert(_assertFloatFitsInto32BitsAndCast(INT32_MAX) == false);

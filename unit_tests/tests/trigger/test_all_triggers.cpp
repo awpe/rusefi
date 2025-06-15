@@ -59,14 +59,13 @@ TEST_P(AllTriggersFixture, TestTrigger) {
 
 	printf("Exporting %s\r\n", getTrigger_type_e(tt));
 
-	persistent_config_s pc;
-	pc = decltype(pc){};
+	persistent_config_s pc{};
 	Engine e;
 	Engine* eng = &e;
 	EngineTestHelperBase base(eng, &pc.engineConfiguration, &pc);
 
 #if EFI_UNIT_TEST
-extern TriggerDecoderBase initState;
+	extern TriggerDecoderBase initState;
     for (size_t i = 0;i<efi::size(initState.gapRatio);i++) {
       initState.gapRatio[i] = NAN;
     }

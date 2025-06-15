@@ -8,32 +8,21 @@
 
 #if EFI_ENGINE_CONTROL
 
-void turnInjectionPinHigh(uintptr_t arg) {
-	efitick_t nowNt = getTimeNowNt();
+void turnInjectionPinHigh(scheduler_arg_t const arg) {
+	auto const nowNt{ getTimeNowNt() };
 
-	// clear last bit to recover the pointer
-	InjectionEvent *event = reinterpret_cast<InjectionEvent*>(arg & ~(1UL));
+	auto const taggedPointer{ TaggedPointer<InjectionEvent>::fromRaw(arg) };
+	auto const event{ taggedPointer.getOriginalPointer() };
+	auto const hasStage2Injection{ taggedPointer.getFlag() };
 
-#if EFI_UNIT_TEST
-	assert(reinterpret_cast<uintptr_t>(event) % alignof(InjectionEvent) == 0);
-	efiPrintf("%ul", reinterpret_cast<uintptr_t>(event));
-#endif
-
-	// extract last bit
-	bool stage2Active = arg & 1;
-
-	for (size_t i = 0; i < efi::size(event->outputs); i++) {
-		InjectorOutputPin *output = event->outputs[i];
-
+	for (auto const& output: event->outputs) {
 		if (output) {
 			output->open(nowNt);
 		}
 	}
 
-	if (stage2Active) {
-		for (size_t i = 0; i < efi::size(event->outputsStage2); i++) {
-			InjectorOutputPin *output = event->outputsStage2[i];
-
+	if (hasStage2Injection) {
+		for (auto const& output: event->outputsStage2) {
 			if (output) {
 				output->open(nowNt);
 			}
@@ -56,8 +45,8 @@ void FuelSchedule::invalidate() {
 }
 
 void FuelSchedule::resetOverlapping() {
-	for (size_t i = 0; i < efi::size(enginePins.injectors); i++) {
-		enginePins.injectors[i].reset();
+	for (auto& inj : enginePins.injectors) {
+		inj.reset();
 	}
 }
 
@@ -82,10 +71,6 @@ static float getInjectionAngleCorrection(float fuelMs, float oneDegreeUs) {
 			// End of injection gets "full correction" so we advance opening by the full duration
 			return injectionDurationAngle;
 	}
-}
-
-InjectionEvent::InjectionEvent() {
-	memset(outputs, 0, sizeof(outputs));
 }
 
 // Returns the start angle of this injector in engine coordinates (0-720 for a 4 stroke),

@@ -195,7 +195,7 @@ void Engine::onSparkFireKnockSense(uint8_t cylinderNumber, efitick_t nowNt) {
 	static_assert(engine != nullptr, "Engine can not be null in this test!");
 
 	scheduleByAngle(nullptr, nowNt,
-		/*angle*/engineConfiguration->knockDetectionWindowStart, { startKnockSampling, (Engine*)engine });
+			/*angle*/engineConfiguration->knockDetectionWindowStart, action_s::make<startKnockSampling>(engine));
 #else
 	scheduleByAngle(nullptr, nowNt,
 		/*angle*/engineConfiguration->knockDetectionWindowStart, { startKnockSampling, this });

@@ -688,7 +688,7 @@ void configureRusefiLuaHooks(lua_State* lState) {
 
 	lua_register(lState, "readPin", lua_readpin);
 #if EFI_PROD_CODE && EFI_SHAFT_POSITION_INPUT
-	lua_register(lState, "startCrankingEngine", [](lua_State*/*l*/) {
+	lua_register(lState, "startCrankingEngine", [](lua_State* l) {
 		doStartCranking();
 		return 0;
 	});
@@ -840,7 +840,8 @@ extern int luaCommandCounters[LUA_BUTTON_COUNT];
 		engineConfiguration->luaCanRxWorkaround = true;
 		return 0;
 	});
-#if HW_PROTEUS
+// high-performance CANbus should be done on F7+, let's preserve couple of priceless bytes on F4
+#if !defined(STM32F4)
 	lua_register(lState, "disableExtendedCanBroadcast", [](lua_State*/*l*/) {
 		// that's about global_can_data
 		engineConfiguration->enableExtendedCanBroadcast = false;
@@ -965,6 +966,21 @@ extern int luaCommandCounters[LUA_BUTTON_COUNT];
 		engine->engineState.lua.acRequestState = lua_toboolean(l, 1);
 		return 0;
 	});
+
+#if !defined(STM32F4)
+	lua_register(lState, "getTorque", [](lua_State* l) {
+		auto rpm = Sensor::getOrZero(SensorType::Rpm);
+		auto tps = Sensor::getOrZero(SensorType::Tps1);
+
+		auto result = interpolate3d(
+                  		config->torqueTable,
+                  		config->torqueLoadBins, tps,
+                  		config->torqueRpmBins, rpm
+                  	);
+		lua_pushnumber(l, result);
+		return 1;
+	});
+#endif
 
 	lua_register(lState, "setTorqueReductionState", [](lua_State* l) {
 		engine->engineState.lua.torqueReductionState = lua_toboolean(l, 1);

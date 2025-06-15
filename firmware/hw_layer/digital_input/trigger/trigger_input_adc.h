@@ -6,7 +6,7 @@
  * @author andreika <prometheus.pcb@gmail.com>
  * @author Andrey Belomutskiy, (c) 2012-2020
  */
- 
+
 #pragma once
 
 #include "global.h"

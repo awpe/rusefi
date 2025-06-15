@@ -215,8 +215,6 @@ int16_t rpmAcceleration;dRPM;"RPM acceleration/Rate of Change/ROC",1, 0, 0, 5, 2
 	int16_t autoscale vvtPositionB2I;@@GAUGE_NAME_VVT_B2I@@;"deg",{1/@@PACK_MULT_ANGLE@@}, 0, 0, 0, 1
 	int16_t autoscale vvtPositionB2E;@@GAUGE_NAME_VVT_B2E@@;"deg",{1/@@PACK_MULT_ANGLE@@}, 0, 0, 0, 1
 
-	int16_t[STFT_BANK_COUNT iterate] autoscale fuelPidCorrection;Fuel: Trim bank;"%",{1/@@PACK_MULT_PERCENT@@}, 0, -20, 20, 2
-
 	int16_t autoscale rawTps1Secondary;;"V",{1/@@PACK_MULT_VOLTAGE@@}, 0, 0, 5, 3
 	int16_t autoscale rawTps2Primary;;"V",{1/@@PACK_MULT_VOLTAGE@@}, 0, 0, 5, 3
 
@@ -281,10 +279,6 @@ int16_t rpmAcceleration;dRPM;"RPM acceleration/Rate of Change/ROC",1, 0, 0, 5, 2
     uint32_t triggerPrimaryRise;;"", 1, 0, 0, 10000, 3
     uint32_t triggerSecondaryFall;;"", 1, 0, 0, 10000, 3
     uint32_t triggerSecondaryRise;;"", 1, 0, 0, 10000, 3
-    uint16_t triggerVvtFall;;"",  1, 0, 0, 3000, 0
-    uint16_t triggerVvtRise;;"",  1, 0, 0, 3000, 0
-    uint16_t triggerVvt2Fall;;"", 1, 0, 0, 3000, 0, @@GAUGE_CATEGORY_SYNC@@
-    uint16_t triggerVvt2Rise;;"", 1, 0, 0, 3000, 0, @@GAUGE_CATEGORY_SYNC@@
 
 
 	uint8_t starterState;;"", 1, 0, 0, 100, 3
@@ -316,18 +310,22 @@ int16_t rpmAcceleration;dRPM;"RPM acceleration/Rate of Change/ROC",1, 0, 0, 5, 2
 	int16_t[IGN_BLEND_COUNT iterate] autoscale ignBlendParameter;;"", 0.1, 0, -1000, 1000, 1
 	uint8_t[IGN_BLEND_COUNT iterate] autoscale ignBlendBias;;"%", 0.5, 0, 0, 100, 1
 	int16_t[IGN_BLEND_COUNT iterate] autoscale ignBlendOutput;;"deg", 0.01, 0, -300, 300, 2
+	int16_t[IGN_BLEND_COUNT iterate] autoscale ignBlendYAxis;;"", 0.1, 0, -1000, 1000, 1
 
 	int16_t[VE_BLEND_COUNT iterate] autoscale veBlendParameter;;"", 0.1, 0, -1000, 1000, 1
 	uint8_t[VE_BLEND_COUNT iterate] autoscale veBlendBias;;"%", 0.5, 0, 0, 100, 1
 	int16_t[VE_BLEND_COUNT iterate] autoscale veBlendOutput;;"%", 0.01, 0, -50, 50, 2
+	int16_t[VE_BLEND_COUNT iterate] autoscale veBlendYAxis;;"", 0.1, 0, -1000, 1000, 1
 
 	int16_t[BOOST_BLEND_COUNT iterate] autoscale boostOpenLoopBlendParameter;;"", 0.1, 0, -1000, 1000, 1
 	uint8_t[BOOST_BLEND_COUNT iterate] autoscale boostOpenLoopBlendBias;;"%", 0.5, 0, 0, 100, 1
-	int8_t[BOOST_BLEND_COUNT iterate] autoscale boostOpenLoopBlendOutput;;"%", 1, 0, -100, 100, 0
+	int8_t[BOOST_BLEND_COUNT iterate] boostOpenLoopBlendOutput;;"%", 1, 0, -100, 100, 0
+	int16_t[BOOST_BLEND_COUNT iterate] autoscale boostOpenLoopBlendYAxis;;"", 0.1, 0, -1000, 1000, 1
 
 	int16_t[BOOST_BLEND_COUNT iterate] autoscale boostClosedLoopBlendParameter;;"", 0.1, 0, -1000, 1000, 1
 	uint8_t[BOOST_BLEND_COUNT iterate] autoscale boostClosedLoopBlendBias;;"%", 0.5, 0, 0, 100, 1
 	int16_t[BOOST_BLEND_COUNT iterate] autoscale boostClosedLoopBlendOutput;;"%", 0.1, 0, -1000, 1000, 1
+	int16_t[BOOST_BLEND_COUNT iterate] autoscale boostClosedLoopBlendYAxis;;"", 0.1, 0, -1000, 1000, 1
 
 	int16_t[TARGET_AFR_BLEND_COUNT iterate] autoscale targetAfrBlendParameter;;"", 0.1, 0, -1000, 1000, 1
 	uint8_t[TARGET_AFR_BLEND_COUNT iterate] autoscale targetAfrBlendBias;;"%", 0.5, 0, 0, 100, 1
@@ -374,6 +372,7 @@ float mapFast
 	uint16_t schedulingUsedCount;;"",1,0,0,0,0
 	uint16_t autoscale vehicleSpeedKph;@@GAUGE_NAME_VVS@@;"kph",{1/@@PACK_MULT_VSS@@}, 0, 0, 0, 2
 
+! todo: document if name is odd due to being a magic variable for TS VEAnalyzer integration or not
 	uint16_t autoscale Gego;;"%",0.01,0,50,150,2
 
 	uint16_t testBenchIter;;"count",1, 0, 0, 0, 0

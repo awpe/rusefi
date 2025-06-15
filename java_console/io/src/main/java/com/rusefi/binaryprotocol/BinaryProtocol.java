@@ -179,7 +179,7 @@ public class BinaryProtocol {
         }
         iniFile = Objects.requireNonNull(iniFileProvider.provide(signature));
 
-        int pageSize = iniFile.getMetaInfo().getTotalSize();
+        int pageSize = iniFile.getMetaInfo().getPageSize(0);
         log.info("pageSize=" + pageSize);
         readImage(arguments, new ConfigurationImageMetaVersion0_0(pageSize, signature));
         if (stream.isClosed())
@@ -387,17 +387,21 @@ public class BinaryProtocol {
             ConfigurationImageFile.saveToFile(imageWithMeta, binaryFileName);
         }
         if (xmlFileName != null) {
-            ConfigurationImage image = imageWithMeta.getConfigurationImage();
-            if (image == null) {
-                log.warn("No image for saveConfigurationImageToFiles");
-                return;
-            }
-            try {
-                final Msq tune = MsqFactory.valueOf(image, ini);
-                tune.writeXmlFile(xmlFileName);
-            } catch (OrdinalOutOfRangeException e) {
-                log.warn("Unexpected " + e, e);
-            }
+            saveXmlFile(imageWithMeta, ini, xmlFileName);
+        }
+    }
+
+    public static void saveXmlFile(ConfigurationImageWithMeta imageWithMeta, IniFileModel ini, @NotNull String xmlFileName) throws JAXBException, IOException {
+        ConfigurationImage image = imageWithMeta.getConfigurationImage();
+        if (image == null) {
+            log.warn("No image for saveConfigurationImageToFiles");
+            return;
+        }
+        try {
+            final Msq tune = MsqFactory.valueOf(image, ini);
+            tune.writeXmlFile(xmlFileName);
+        } catch (OrdinalOutOfRangeException e) {
+            log.warn("Unexpected " + e, e);
         }
     }
 
@@ -642,7 +646,7 @@ public class BinaryProtocol {
 
         state.setCurrentOutputs(reassemblyBuffer);
 
-        SensorCentral.getInstance().grabSensorValues(reassemblyBuffer);
+        SensorCentral.getInstance().grabSensorValues(reassemblyBuffer, getIniFile());
         return true;
     }
 

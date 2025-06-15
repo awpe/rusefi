@@ -7,7 +7,6 @@ import com.opensr5.ConfigurationImageWithMeta;
 import com.opensr5.ini.IniFileModel;
 import com.opensr5.ini.field.*;
 import com.rusefi.ConnectivityContext;
-import com.rusefi.PortResult;
 import com.rusefi.binaryprotocol.BinaryProtocol;
 import com.rusefi.binaryprotocol.BinaryProtocolLocalCache;
 import com.rusefi.core.ui.AutoupdateUtil;
@@ -40,9 +39,21 @@ public class CalibrationsHelper {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-mm-dd-hh.mm.ss");
 
+    public static void main(final String[] args) {
+        if (args.length != 2) {
+            System.err.println("File name and port are expected as command line arguments!");
+        } else {
+            final String fileName = args[0];
+            final String port = args[1];
+            if (!readAndBackupCurrentCalibrations(port, UpdateOperationCallbacks.CONSOLE, fileName).isPresent()) {
+                System.err.printf("Failed to read current calibrations from %s port%n", port);
+            }
+        }
+    }
+
     public static boolean updateFirmwareAndRestorePreviousCalibrations(
         final JComponent parent,
-        final PortResult ecuPort,
+        final String ecuPort,
         final UpdateOperationCallbacks callbacks,
         final Supplier<Boolean> updateFirmware, ConnectivityContext connectivityContext
     ) {
@@ -50,7 +61,7 @@ public class CalibrationsHelper {
 
         final String timestampFoleNameComponent = DATE_FORMAT.format(new Date());
 
-        final Optional<CalibrationsInfo> prevCalibrations = readAndBackupCurrentCalibrations(
+        final Optional<CalibrationsInfo> prevCalibrations = readAndBackupCurrentCalibrationsWithSuspendedPortScanner(
             ecuPort,
             callbacks,
             getFileNameWithoutExtension(timestampFoleNameComponent, PREVIOUS_CALIBRATIONS_FILE_NAME_COMPONENT), connectivityContext
@@ -64,7 +75,7 @@ public class CalibrationsHelper {
             return false;
         }
 
-        final Optional<CalibrationsInfo> updatedCalibrations = readAndBackupCurrentCalibrations(
+        final Optional<CalibrationsInfo> updatedCalibrations = readAndBackupCurrentCalibrationsWithSuspendedPortScanner(
             ecuPort,
             callbacks,
             getFileNameWithoutExtension(timestampFoleNameComponent, UPDATED_CALIBRATIONS_FILE_NAME_COMPONENT), connectivityContext
@@ -94,7 +105,7 @@ public class CalibrationsHelper {
                 return false;
             }
             return CalibrationsUpdater.INSTANCE.updateCalibrations(
-                ecuPort.port,
+                ecuPort,
                 mergedCalibrations.get().getImage().getConfigurationImage(),
                 callbacks, connectivityContext
             );
@@ -125,9 +136,9 @@ public class CalibrationsHelper {
             }
             callbacks.logLine(String.format("Received a signature %s", signature));
             final IniFileModel iniFile = iniFileProvider.provide(signature);
-            final int pageSize = iniFile.getMetaInfo().getTotalSize();
+            final int pageSize = iniFile.getMetaInfo().getPageSize(0);
             callbacks.logLine(String.format("Page size is %d", pageSize));
-            final ConfigurationImageMetaVersion0_0 meta = new ConfigurationImageMetaVersion0_0(pageSize, signature);
+            final ConfigurationImageMetaVersion0_0 meta = ConfigurationImageMetaVersion0_0.getMeta(iniFile);
             callbacks.logLine("Reading current calibrations...");
             final ConfigurationImageWithMeta image = binaryProtocol.readFullImageFromController(meta);
             return Optional.of(new CalibrationsInfo(iniFile, image));
@@ -220,36 +231,57 @@ public class CalibrationsHelper {
         );
     }
 
-    public static Optional<CalibrationsInfo> readAndBackupCurrentCalibrations(
-        final PortResult ecuPort,
+    public static Optional<CalibrationsInfo> readAndBackupCurrentCalibrationsWithSuspendedPortScanner(
+        final String ecuPort,
         final UpdateOperationCallbacks callbacks,
-        final String backupFileName, ConnectivityContext connectivityContext
+        final String backupFileName,
+        final ConnectivityContext connectivityContext
     ) {
         return BinaryProtocolExecutor.executeWithSuspendedPortScanner(
-            ecuPort.port,
+            ecuPort,
             callbacks,
-            (binaryProtocol) -> {
-                try {
-                    final Optional<CalibrationsInfo> calibrationsInfo = readCalibrationsInfo(binaryProtocol, callbacks);
-                    if (calibrationsInfo.isPresent()) {
-                        final CalibrationsInfo receivedCalibrations = calibrationsInfo.get();
-                        if (backUpCalibrationsInfo(
-                            receivedCalibrations,
-                            backupFileName,
-                            callbacks
-                        )) {
-                            return calibrationsInfo;
-                        }
-                    }
-                    return Optional.empty();
-                } catch (final Exception e) {
-                    log.error("Back up current calibrations failed:", e);
-                    callbacks.logLine("Back up current calibrations failed");
-                    return Optional.empty();
-                }
-            },
-            Optional.empty(), connectivityContext
+            binaryProtocol -> readAndBackupCurrentCalibrations(binaryProtocol, callbacks, backupFileName),
+            Optional.empty(),
+            connectivityContext
         );
+    }
+
+    private static Optional<CalibrationsInfo> readAndBackupCurrentCalibrations(
+        final String ecuPort,
+        final UpdateOperationCallbacks callbacks,
+        final String backupFileName
+    ) {
+        return BinaryProtocolExecutor.execute(
+            ecuPort,
+            callbacks,
+            binaryProtocol -> readAndBackupCurrentCalibrations(binaryProtocol, callbacks, backupFileName),
+            Optional.empty(),
+            false
+        );
+    }
+    private static Optional<CalibrationsInfo> readAndBackupCurrentCalibrations(
+        final BinaryProtocol binaryProtocol,
+        final UpdateOperationCallbacks callbacks,
+        final String backupFileName
+    ) {
+        try {
+            final Optional<CalibrationsInfo> calibrationsInfo = readCalibrationsInfo(binaryProtocol, callbacks);
+            if (calibrationsInfo.isPresent()) {
+                final CalibrationsInfo receivedCalibrations = calibrationsInfo.get();
+                if (backUpCalibrationsInfo(
+                    receivedCalibrations,
+                    backupFileName,
+                    callbacks
+                )) {
+                    return calibrationsInfo;
+                }
+            }
+            return Optional.empty();
+        } catch (final Exception e) {
+            log.error("Back up current calibrations failed:", e);
+            callbacks.logLine("Back up current calibrations failed");
+            return Optional.empty();
+        }
     }
 
     public static Optional<CalibrationsInfo> mergeCalibrations(

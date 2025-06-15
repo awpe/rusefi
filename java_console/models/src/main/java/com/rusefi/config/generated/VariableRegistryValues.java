@@ -198,9 +198,9 @@ public class VariableRegistryValues {
 	public static final int CLT_CURVE_SIZE = 16;
 	public static final int CLT_FUEL_CURVE_SIZE = 16;
 	public static final int CLT_IDLE_TABLE_CLT_SIZE = 8;
-	public static final int CLT_IDLE_TABLE_RPM_SIZE = 2;
+	public static final int CLT_IDLE_TABLE_RPM_SIZE = 6;
 	public static final int CLT_LIMITER_CURVE_SIZE = 4;
-	public static final int CLT_TIMING_CURVE_SIZE = 5;
+	public static final int CLT_TIMING_CURVE_SIZE = 3;
 	public static final int CLT_UPPER_LIMIT = 250;
 	public static final String CMD_AC_RELAY_BENCH = "acrelaybench";
 	public static final String CMD_ALTERNATOR_PIN = "set_alternator_pin";
@@ -263,6 +263,7 @@ public class VariableRegistryValues {
 	public static final int cranking_parameters_s_size = 4;
 	public static final int CRITICAL_BUFFER_SIZE = 120;
 	public static final String CRITICAL_PREFIX = "CRITICAL";
+	public static final int CUSTOM_TS_BUFFER_SIZE = 32000;
 	public static final int CYLINDER_BORE_MULTIPLIER = 1;
 	public static final String CYLINDER_BORE_TOOLTIP = "Cylinder diameter in mm";
 	public static final String CYLINDER_BORE_UNITS = "mm";
@@ -373,7 +374,7 @@ public class VariableRegistryValues {
 	public static final int ego_sensor_e_ES_PLX = 4;
 	public static final String egoSettings_NAME = "CAN O2 sensors";
 	public static final int EGT_CHANNEL_COUNT = 8;
-	public static final int engine_configuration_s_size = 3928;
+	public static final int engine_configuration_s_size = 3864;
 	public static final int engine_load_mode_e_LM_ALPHA_N = 2;
 	public static final int engine_load_mode_e_LM_LUA = 3;
 	public static final int engine_load_mode_e_LM_MOCK = 100;
@@ -458,7 +459,6 @@ public class VariableRegistryValues {
 	public static final int engine_type_e_MINIMAL_PINS = 99;
 	public static final int engine_type_e_MITSUBISHI_3A92 = 12;
 	public static final int engine_type_e_MITSUBISHI_4G93 = 16;
-	public static final int engine_type_e_MRE_BOARD_NEW_TEST = 31;
 	public static final int engine_type_e_MRE_BODY_CONTROL = 23;
 	public static final int engine_type_e_MRE_SECONDARY_CAN = 4;
 	public static final int engine_type_e_MRE_SUBARU_EJ18 = 37;
@@ -471,7 +471,6 @@ public class VariableRegistryValues {
 	public static final int engine_type_e_PROTEUS_GM_LS_4 = 27;
 	public static final int engine_type_e_PROTEUS_LUA_DEMO = 25;
 	public static final int engine_type_e_PROTEUS_NISSAN_VQ35 = 103;
-	public static final int engine_type_e_PROTEUS_QC_TEST_BOARD = 42;
 	public static final int engine_type_e_PROTEUS_STIM_QC = 73;
 	public static final int engine_type_e_PROTEUS_VW_B6 = 39;
 	public static final int engine_type_e_SACHS = 29;
@@ -493,6 +492,8 @@ public class VariableRegistryValues {
 	public static final int engine_type_e_TOYOTA_1NZ_FE = 13;
 	public static final int engine_type_e_TOYOTA_2JZ_GTE_VVTi = 44;
 	public static final int engine_type_e_UNUSED102 = 102;
+	public static final int engine_type_e_UNUSED31 = 31;
+	public static final int engine_type_e_UNUSED42 = 42;
 	public static final int engine_type_e_UNUSED94 = 94;
 	public static final int engine_type_e_UNUSED_105 = 105;
 	public static final int engine_type_e_UNUSED_97 = 97;
@@ -508,6 +509,7 @@ public class VariableRegistryValues {
 	public static final int FLOW_LINEARIZATION_MASS_SIZE = 2;
 	public static final int FLOW_LINEARIZATION_PRESSURE_SIZE = 2;
 	public static final String FRONTEND_TITLE_BAR_NAME = "rusEFI";
+	public static final int FT_BANK_COUNT = 2;
 	public static final int fuel_cyl_trim_s_size = 16;
 	public static final int FUEL_LEVEL_TABLE_COUNT = 8;
 	public static final int FUEL_LOAD_COUNT = 16;
@@ -614,11 +616,10 @@ public class VariableRegistryValues {
 	public static final String GAUGE_NAME_FUEL_PRESSURE_LOW = "Fuel pressure (low)";
 	public static final String GAUGE_NAME_FUEL_PRESSURE_LOW_UNITS = "kPa";
 	public static final String GAUGE_NAME_FUEL_RUNNING = "Fuel: running";
+	public static final String GAUGE_NAME_FUEL_STFT_1 = "Short Term Fuel Trim: Bank 1";
+	public static final String GAUGE_NAME_FUEL_STFT_2 = "Short Term Fuel Trim: Bank 2";
 	public static final String GAUGE_NAME_FUEL_TEMPERATURE = "Fuel Temperature";
-	public static final String GAUGE_NAME_FUEL_TPS_EXTRA = "Fuel: TPS AE add fuel ms";
-	public static final String GAUGE_NAME_FUEL_TPS_ROC = "Fuel: TPS change";
-	public static final String GAUGE_NAME_FUEL_TRIM = "Fuel: fuel trim";
-	public static final String GAUGE_NAME_FUEL_TRIM_2 = "Fuel: fuel trim 2";
+	public static final String GAUGE_NAME_FUEL_TPS_EXTRA = "Fuel: TPS acceleration add fuel ms";
 	public static final String GAUGE_NAME_FUEL_VE = "Fuel: VE";
 	public static final String GAUGE_NAME_FUEL_WALL_AMOUNT = "Fuel: wall amount";
 	public static final String GAUGE_NAME_FUEL_WALL_CORRECTION = "Fuel: wall correction";
@@ -1116,7 +1117,6 @@ public class VariableRegistryValues {
 	public static final int GPPWM_NOTE_SIZE = 16;
 	public static final int GPPWM_RPM_COUNT = 8;
 	public static final String HD_MENU_NAME = "Harley";
-	public static final int HIGH_SPEED_COUNT = 32;
 	public static final int hpfp_cam_e_HPFP_CAM_EX1 = 2;
 	public static final int hpfp_cam_e_HPFP_CAM_EX2 = 4;
 	public static final int hpfp_cam_e_HPFP_CAM_IN1 = 1;
@@ -1131,7 +1131,7 @@ public class VariableRegistryValues {
 	public static final int IAC_PID_MULT_RPM_SIZE = 8;
 	public static final int IAC_PID_MULT_SIZE = 8;
 	public static final int IAT_CURVE_SIZE = 16;
-	public static final int IAT_IGN_CORR_COUNT = 8;
+	public static final int IAT_IGN_CORR_COUNT = 4;
 	public static final int IAT_IGN_CORR_LOAD_COUNT = 8;
 	public static final int IDLE_ADVANCE_CURVE_SIZE = 8;
 	public static final int idle_hardware_s_size = 12;
@@ -1205,9 +1205,6 @@ public class VariableRegistryValues {
 	public static final int load_override_e_AFR_Tps = 2;
 	public static final String LOG_DELIMITER = "`";
 	public static final int LOGIC_ANALYZER_CHANNEL_COUNT = 4;
-	public static final int LTFT_BANK_CONUT = 2;
-	public static final int LTFT_LOAD_CELL_COUNT = 16;
-	public static final int LTFT_RPM_CELL_COUNT = 16;
 	public static final int LUA_ANALOG_INPUT_COUNT = 8;
 	public static final int LUA_BUTTON_COUNT = 4;
 	public static final int LUA_DIGITAL_INPUT_COUNT = 8;
@@ -1223,13 +1220,13 @@ public class VariableRegistryValues {
 	public static final int lua_gauge_meaning_e_LUA_GAUGE_LOWER_BOUND = 0;
 	public static final int lua_gauge_meaning_e_LUA_GAUGE_UPPER_BOUND = 1;
 	public static final int LUA_PWM_COUNT = 8;
-	public static final int LUA_SCRIPT_SIZE = 8000;
+	public static final int LUA_SCRIPT_SIZE = 48000;
 	public static final int MAF_DECODING_COUNT = 32;
 	public static final int maf_sensor_type_e_Bosch0280218004 = 2;
 	public static final int maf_sensor_type_e_Bosch0280218037 = 1;
 	public static final int maf_sensor_type_e_CUSTOM = 0;
 	public static final int maf_sensor_type_e_DensoTODO = 3;
-	public static final String MAIN_HELP_URL = "http://www.rusefi.com/";
+	public static final String MAIN_HELP_URL = "https://github.com/rusefi/rusefi/wiki/Proteus-Manual";
 	public static final int MAP_ANGLE_SIZE = 8;
 	public static final int MAP_EST_LOAD_COUNT = 16;
 	public static final int MAP_EST_RPM_COUNT = 16;
@@ -1288,7 +1285,7 @@ public class VariableRegistryValues {
 	public static final int PEDAL_TO_TPS_SIZE = 8;
 	public static final String pedalSensor_NAME = "Accelerator pedal";
 	public static final String pedalToTpsTbl_NAME = "ETB pedal target";
-	public static final int persistent_config_s_size = 23760;
+	public static final int persistent_config_s_size = 63796;
 	public static final int pid_s_size = 20;
 	public static final int pin_input_mode_e_PI_DEFAULT = 0;
 	public static final int pin_input_mode_e_PI_INVERTED_DEFAULT = 4;
@@ -1353,7 +1350,6 @@ public class VariableRegistryValues {
 	public static final int SentInput_INPUT6 = 6;
 	public static final int SentInput_INPUT7 = 7;
 	public static final int SentInput_NONE = 0;
-	public static final int SIGNATURE_HASH = 1625482431;
 	public static final String SIMULATOR_TUNE_BIN_FILE_NAME = "generated/simulator_tune_image.bin";
 	public static final String SIMULATOR_TUNE_BIN_FILE_NAME_PREFIX = "generated/simulator_tune_image";
 	public static final String SIMULATOR_TUNE_BIN_FILE_NAME_SUFFIX = ".bin";
@@ -1371,7 +1367,6 @@ public class VariableRegistryValues {
 	public static final int stepper_num_micro_steps_e_STEPPER_FOURTH = 4;
 	public static final int stepper_num_micro_steps_e_STEPPER_FULL = 0;
 	public static final int stepper_num_micro_steps_e_STEPPER_HALF = 2;
-	public static final int STFT_BANK_COUNT = 2;
 	public static final int stft_cell_cfg_s_size = 4;
 	public static final int STFT_CELL_COUNT = 4;
 	public static final int stft_s_size = 28;
@@ -1398,7 +1393,7 @@ public class VariableRegistryValues {
 	public static final int tle8888_mode_e_TL_MANUAL = 2;
 	public static final int tle8888_mode_e_TL_SEMI_AUTO = 1;
 	public static final int TMF_RATIO_SIZE = 2;
-	public static final int TMF_SIZE = 2;
+	public static final int TMF_SIZE = 8;
 	public static final int TOOTH_DATA_LENGTH = 2000;
 	public static final int TOOTH_PACKET_COUNT = 1000;
 	public static final int TOOTH_PACKET_SIZE = 2;
@@ -1411,7 +1406,7 @@ public class VariableRegistryValues {
 	public static final int torqueReductionActivationMode_e_TORQUE_REDUCTION_BUTTON = 0;
 	public static final int torqueReductionActivationMode_e_TORQUE_REDUCTION_CLUTCH_DOWN_SWITCH = 2;
 	public static final int torqueReductionActivationMode_e_TORQUE_REDUCTION_CLUTCH_UP_SWITCH = 3;
-	public static final int TOTAL_CONFIG_SIZE = 23760;
+	public static final int TOTAL_CONFIG_SIZE = 63796;
 	public static final int TPS_2_BYTE_PACKING_MULT = 100;
 	public static final int TPS_PPS_TOO_HIGH_THRESHOLD = 110;
 	public static final int TPS_PPS_TOO_LOW_THRESHOLD = -10;
@@ -1638,11 +1633,13 @@ public class VariableRegistryValues {
 	public static final int TS_RESPONSE_OVERRUN = 0x81;
 	public static final int TS_RESPONSE_UNDERRUN = 0x80;
 	public static final int TS_RESPONSE_UNRECOGNIZED_COMMAND = 0x83;
+	public static final int TS_SCATTER_OFFSETS_COUNT = 128;
+	public static final int TS_SCATTER_PAGE_SIZE = 256;
 	public static final char TS_SET_LOGGER_SWITCH = 'l';
-	public static final String TS_SIGNATURE = "rusEFI master.2025.06.10.frankenso_na6.1625482431";
+	public static final String TS_SIGNATURE = "rusEFI master.2025.06.15.proteus_f7.4050524703";
 	public static final char TS_SIMULATE_CAN = '>';
 	public static final char TS_TEST_COMMAND = 't';
-	public static final int TS_TOTAL_OUTPUT_SIZE = 1916;
+	public static final int TS_TOTAL_OUTPUT_SIZE = 1952;
 	public static final String TS_TRIGGER_SCOPE_CHANNEL_1_NAME = "Channel 1";
 	public static final String TS_TRIGGER_SCOPE_CHANNEL_2_NAME = "Channel 2";
 	public static final int TS_TRIGGER_SCOPE_DISABLE = 5;

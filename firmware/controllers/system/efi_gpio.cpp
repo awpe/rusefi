@@ -95,7 +95,6 @@ RegisteredOutputPin::RegisteredOutputPin(const char *p_registrationName, size_t 
 }
 
 bool RegisteredOutputPin::isPinConfigurationChanged() {
-#if EFI_PROD_CODE
 	brain_pin_e        curPin = *(brain_pin_e       *) ((void *) (&((char*)&activeConfiguration)[m_pinOffset]));
 	brain_pin_e        newPin = *(brain_pin_e       *) ((void *) (&((char*) engineConfiguration)[m_pinOffset]));
 	bool pinChanged = curPin != newPin;
@@ -107,9 +106,6 @@ bool RegisteredOutputPin::isPinConfigurationChanged() {
 	pin_output_mode_e curMode = *(pin_output_mode_e *) ((void *) (&((char*)&activeConfiguration)[m_pinModeOffset]));
 	pin_output_mode_e newMode = *(pin_output_mode_e *) ((void *) (&((char*) engineConfiguration)[m_pinModeOffset]));
 	return pinChanged || curMode != newMode;
-#else
-    return true;
-#endif // EFI_PROD_CODE
 }
 
 void RegisteredOutputPin::init() {
@@ -397,6 +393,23 @@ OutputPin *EnginePins::getOutputPinForBenchMode(bench_mode_e index) {
 	}
 	return nullptr;
 }
+
+#if EFI_UNIT_TEST
+/*
+* this function goes through the whole pin repository and sets them all to "GPIO::Unassigned",
+* this is done as a clean-up for testing, since several motor configurations can have conflicting pins
+* at the same time the productive de-init uses "isPinConfigurationChanged" to reset only the pins that have been changed,
+* so in order for it to be properly de-initialized as it is done in prod, all pins are re-configured as unassigned,
+* previously unused pins by tests will not be de-initialized since the configuration on them will be the same (Unassigned => Unassigned)
+*/
+void EnginePins::resetForUnitTest() {
+	RegisteredOutputPin * pin = registeredOutputHead;
+	while (pin != nullptr) {
+		pin->brainPin = Gpio::Unassigned;
+		pin = pin->next;
+	}
+}
+#endif
 
 NamedOutputPin::NamedOutputPin() : OutputPin() {
 }

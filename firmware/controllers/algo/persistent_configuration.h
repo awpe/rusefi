@@ -11,17 +11,13 @@
 
 #include "rusefi/crc.h"
 
-#ifdef __cplusplus
-
 struct persistent_config_container_s {
-	int version;
-	int size;
-	persistent_config_s persistentConfiguration;
-	uint32_t crc;
+	int version{};
+	int size{};
+	persistent_config_s persistentConfiguration{};
+	uint32_t crc{};
 
 	uint32_t getCrc() {
 		return crc32(&persistentConfiguration, sizeof(persistent_config_s));
 	}
 };
-
-#endif

@@ -565,9 +565,6 @@ static void updateSensors() {
 }
 
 static void updateFuelCorrections() {
-	for (size_t i = 0; i < STFT_BANK_COUNT; i++) {
-		engine->outputChannels.fuelPidCorrection[i] = 100.0f * (engine->engineState.stftCorrection[i] - 1.0f);
-	}
 	engine->outputChannels.Gego = 100.0f * engine->engineState.stftCorrection[0];
 }
 
@@ -765,10 +762,6 @@ void updateTunerStudioState() {
 	tsOutputChannels->triggerSecondaryFall = engine->triggerCentral.getHwEventCounter((int)SHAFT_SECONDARY_FALLING);
 	tsOutputChannels->triggerSecondaryRise = engine->triggerCentral.getHwEventCounter((int)SHAFT_SECONDARY_RISING);
 
-	tsOutputChannels->triggerVvtRise = engine->triggerCentral.vvtEventRiseCounter[0];
-	tsOutputChannels->triggerVvtFall = engine->triggerCentral.vvtEventFallCounter[0];
-	tsOutputChannels->triggerVvt2Fall = engine->triggerCentral.vvtEventRiseCounter[1];
-	tsOutputChannels->triggerVvt2Rise = engine->triggerCentral.vvtEventFallCounter[1];
 #endif // EFI_SHAFT_POSITION_INPUT
 
 #if HAL_USE_PAL && EFI_PROD_CODE

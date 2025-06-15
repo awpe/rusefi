@@ -15,7 +15,7 @@ import com.rusefi.io.tcp.BinaryProtocolServer;
  * BinaryProtocolServer#DEFAULT_PROXY_PORT
  */
 class BinaryProtocolServerSandbox {
-
+/*
     public static void main(String[] args) {
 //        File f = new File(BinaryProtocolServer.TEST_FILE);
 //        if (!f.exists())
@@ -24,7 +24,7 @@ class BinaryProtocolServerSandbox {
         IniFileModel model = IniFileModeSingleton.getInstance();
 
         BinaryProtocolState state = new BinaryProtocolState();
-        ConfigurationImage controller = new ConfigurationImage(new byte[model.getMetaInfo().getTotalSize()]);
+        ConfigurationImage controller = new ConfigurationImage(new byte[model.getMetaInfo().getPageSize(0)]);
 //        ScalarIniField iniField = s
 //        iniField.setValue(controller, new Constant(iniField.getName(), "", "1", iniField.getDigits()));
         state.setConfigurationImage(controller);
@@ -34,4 +34,5 @@ class BinaryProtocolServerSandbox {
         linkManager.setConnector(LinkConnector.getDetachedConnector(state));
         new BinaryProtocolServer().start(linkManager);
     }
+*/
 }
