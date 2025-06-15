@@ -33,8 +33,8 @@ enum triggerAdcMode_t {
 	TRIGGER_ADC_EXTI,
 };
 
-adc_channel_e getAdcChannelForTrigger(void);
-void addAdcChannelForTrigger(void);
+adc_channel_e getAdcChannelForTrigger();
+void addAdcChannelForTrigger();
 void triggerAdcCallback(triggerAdcSample_t value);
 
 void setTriggerAdcMode(triggerAdcMode_t adcMode);

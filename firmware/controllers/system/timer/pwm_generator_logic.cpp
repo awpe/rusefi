@@ -31,15 +31,7 @@ SimplePwm::SimplePwm(const char *name) : SimplePwm()  {
 	m_name = name;
 }
 
-PwmConfig::PwmConfig() {
-	memset((void*)&scheduling, 0, sizeof(scheduling));
-	memset((void*)&safe, 0, sizeof(safe));
-	dbgNestingLevel = 0;
-	periodNt = NAN;
-	mode = PM_NORMAL;
-	memset(&outputPins, 0, sizeof(outputPins));
-	m_name = "[noname]";
-}
+PwmConfig::PwmConfig() = default;
 
 /**
  * This method allows you to change duty cycle on the fly
@@ -108,7 +100,7 @@ static efitick_t getNextSwitchTimeNt(PwmConfig *state) {
 	 * This is addressed by iterationLimit below, using any many cycles as possible without overflowing timeToSwitchNt
 	 * Shall we reuse 'sumTickAndFloat' here?
 	 */
-	uint32_t timeToSwitchNt = (uint32_t)((iteration + switchTime) * periodNt);
+	auto timeToSwitchNt = static_cast<uint32_t>((static_cast<float>(iteration) + switchTime) * periodNt);
 
 #if DEBUG_PWM
 	efiPrintf("start=%d timeToSwitch=%d", state->safe.start, timeToSwitch);
@@ -145,18 +137,18 @@ void PwmConfig::handleCycleStart() {
 	}
 
 	// Compute the maximum number of iterations without overflowing a uint32_t worth of timestamp
-	uint32_t iterationLimitInt32 = (0xFFFFFFFF / periodNt) - 2;
+	uint32_t iterationLimitInt32 = static_cast<uint32_t>(static_cast<float>(0xFFFFFFFF) / periodNt) - 2;
 
 	// Maximum number of iterations that don't lose precision due to 32b float (~7 decimal significant figures)
 	// We want at least 0.01% timing precision (aka 1/10000 cycle, 0.072 degree for trigger stimulator), which
 	// means we can't do any more than 2^23 / 10000 cycles = 838 iterations before a reset
 	uint32_t iterationLimitFloat = 838;
 
-	uint32_t iterationLimit = minI(iterationLimitInt32, iterationLimitFloat);
+	uint32_t iterationLimit = std::min(iterationLimitInt32, iterationLimitFloat);
 
 	efiAssertVoid(ObdCode::CUSTOM_ERR_6580, periodNt != 0, "period not initialized");
 	efiAssertVoid(ObdCode::CUSTOM_ERR_6580, iterationLimit > 0, "iterationLimit invalid");
-	if (forceCycleStart || safe.periodNt != periodNt || safe.iteration == iterationLimit) {
+	if (forceCycleStart || safe.periodNt != periodNt || static_cast<uint32_t>(safe.iteration) == iterationLimit) {
 		/**
 		 * period length has changed - we need to reset internal state
 		 */
@@ -240,7 +232,7 @@ efitick_t PwmConfig::togglePwmState() {
 		}
 	}
 #if EFI_UNIT_TEST
-	printf("PWM: nextSwitchTimeNt=%d phaseIndex=%d iteration=%d\r\n", nextSwitchTimeNt,
+	printf("PWM: nextSwitchTimeNt=%ld phaseIndex=%d iteration=%d\r\n", nextSwitchTimeNt,
 			safe.phaseIndex,
 			safe.iteration);
 #endif /* EFI_UNIT_TEST */
@@ -315,7 +307,7 @@ void PwmConfig::weComplexInit(Scheduler *executor,
 void startSimplePwm(SimplePwm *state, const char *msg,
 		Scheduler *executor,
 		OutputPin *output, float frequency, float dutyCycle, pwm_gen_callback *callback) {
-	efiAssertVoid(ObdCode::CUSTOM_ERR_PWM_STATE_ASSERT, state != NULL, "state");
+	efiAssertVoid(ObdCode::CUSTOM_ERR_PWM_STATE_ASSERT, state != nullptr, "state");
 	efiAssertVoid(ObdCode::CUSTOM_ERR_PWM_DUTY_ASSERT, dutyCycle >= 0 && dutyCycle <= PWM_MAX_DUTY, "dutyCycle");
 	if (frequency < 1) {
 		warning(ObdCode::CUSTOM_OBD_LOW_FREQUENCY, "low frequency %.2f %s", frequency, msg);
@@ -392,7 +384,7 @@ void startSimplePwmHard(SimplePwm *state, const char *msg,
  * default implementation of pwm_gen_callback which simply toggles the pins
  *
  */
-void PwmConfig::applyPwmValue(OutputPin *output, int stateIndex, /* weird argument order to facilitate default parameter value */int channelIndex) {
+void PwmConfig::applyPwmValue(OutputPin *output, int stateIndex, /* weird argument order to facilitate default parameter value */int channelIndex) const {
 	TriggerValue value = multiChannelStateSequence->getChannelState(channelIndex, stateIndex);
 	output->setValue(value == TriggerValue::RISE);
 }

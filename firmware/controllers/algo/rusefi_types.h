@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include <string.h>
+#include <cstring>
 #include <stdbool.h>
-#include <float.h>
-#include <stdint.h>
+#include <cfloat>
+#include <cstdint>
 #include <sys/types.h>
 
 #include <board_types.h>
@@ -19,9 +19,7 @@
 #include "rusefi_enums.h"
 #include "firing_order.h"
 
-#if __cplusplus
 #include "efi_scaled_channel.h"
-#endif
 
 #define TWO_STROKE_CYCLE_DURATION 360
 #define FOUR_STROKE_CYCLE_DURATION 720

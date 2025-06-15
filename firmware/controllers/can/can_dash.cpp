@@ -609,7 +609,7 @@ void canDashboardAim(CanCycle cycle) {
 	// transmitStruct<Aim5fd>(0x5fd, false);
 }
 
-PUBLIC_API_WEAK void boardUpdateDash(CanCycle cycle) {}
+PUBLIC_API_WEAK void boardUpdateDash(CanCycle /*cycle*/) {}
 
 void updateDash(CanCycle cycle) {
   boardUpdateDash(cycle);

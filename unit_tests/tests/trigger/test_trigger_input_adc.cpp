@@ -25,15 +25,7 @@
 #include "trigger_input_adc.h"
 #include "logicdata_csv_reader.h"
 
-
-extern TriggerAdcDetector trigAdcState;
-
 static int triggerChangedRisingCnt = 0, triggerChangedFallingCnt = 0;
-
-
-void setTriggerAdcMode(triggerAdcMode_t adcMode) {
-	trigAdcState.curAdcMode = adcMode;
-}
 
 void onTriggerChanged(efitick_t stamp, bool isPrimary, bool isRising) {
 	if (isRising)
@@ -44,7 +36,7 @@ void onTriggerChanged(efitick_t stamp, bool isPrimary, bool isRising) {
 	hwHandleShaftSignal(isPrimary ? 0 : 1, isRising, stamp);
 }
 
-static void simulateTrigger(EngineTestHelper &eth, TriggerAdcDetector &trigAdcState, CsvReader &reader, float voltageDiv, float adcMaxVoltage) {
+static void simulateTrigger(EngineTestHelper &eth, CsvReader &reader, float voltageDiv, float adcMaxVoltage) {
 	static const float Vil = 0.3f * adcMaxVoltage;
 	static const float Vih = 0.7f * adcMaxVoltage;
 
@@ -60,7 +52,7 @@ static void simulateTrigger(EngineTestHelper &eth, TriggerAdcDetector &trigAdcSt
 
 		// convert into mcu-adc voltage
 		value = minF(maxF(value / voltageDiv, 0), adcMaxVoltage);
-		if (trigAdcState.curAdcMode == TRIGGER_ADC_EXTI) {
+		if (TriggerAdcDetector::getTriggerAdcMode() == TRIGGER_ADC_EXTI) {
 			int logicValue = 0;
 			// imitate Schmitt trigger input
 			if (value < Vil || value > Vih) {
@@ -69,16 +61,16 @@ static void simulateTrigger(EngineTestHelper &eth, TriggerAdcDetector &trigAdcSt
 				if (prevLogicValue != -1) {
 //					printf("--> DIGITAL %d %d\r\n", logicValue, prevLogicValue);
 
-					trigAdcState.digitalCallback(stampNt, true, logicValue > prevLogicValue ? true : false);
+					TriggerAdcDetector::digitalCallback(stampNt, true, logicValue > prevLogicValue ? true : false);
 				}
 				prevLogicValue = logicValue;
 			}
-		} else if (trigAdcState.curAdcMode == TRIGGER_ADC_ADC) {
+		} else if (TriggerAdcDetector::getTriggerAdcMode() == TRIGGER_ADC_ADC) {
 			triggerAdcSample_t sampleValue = value * ADC_MAX_VALUE / adcMaxVoltage;
 			
 //			printf("--> ANALOG %d\r\n", sampleValue);
 
-			trigAdcState.analogCallback(stampNt, sampleValue);
+			TriggerAdcDetector::analogCallback(stampNt, sampleValue);
 		}
 	}
 }
@@ -100,10 +92,10 @@ static void testOnCsvData(const char *fileName, int finalRpm, int risingCnt, int
 	ASSERT_EQ(0, engine->triggerCentral.triggerState.totalTriggerErrorCounter);
 	ASSERT_EQ(0,  Sensor::getOrZero(SensorType::Rpm)) << "testTriggerInputAdc RPM #1 on " << fileName;
 
-	trigAdcState.init();
+	TriggerAdcDetector::init();
 
 	// disable weak signal detector for this test
-	trigAdcState.setWeakSignal(false);
+	TriggerAdcDetector::setWeakSignal(false);
 
 	setTriggerAdcMode(TRIGGER_ADC_ADC);
 
@@ -111,12 +103,12 @@ static void testOnCsvData(const char *fileName, int finalRpm, int risingCnt, int
 	triggerChangedRisingCnt = 0; triggerChangedFallingCnt = 0;
 
 	// skip some time to avoid conflicts with ADC sampling time correction
-	eth.moveTimeForwardUs(NT2US(trigAdcState.stampCorrectionForAdc));
+	eth.moveTimeForwardUs(NT2US(TriggerAdcDetector::getStampCorrectionForAdc()));
 
 	CsvReader reader(1, 0);
 
 	reader.open(fileName);
-	simulateTrigger(eth, trigAdcState, reader, 2.0f, 3.3f);
+	simulateTrigger(eth, reader, 2.0f, 3.3f);
 
 	ASSERT_EQ(errCnt,  engine->triggerCentral.triggerState.totalTriggerErrorCounter);
 	ASSERT_EQ(risingCnt,  triggerChangedRisingCnt);

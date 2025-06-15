@@ -49,7 +49,7 @@ public:
 		return m_chip != nullptr;
 	}
 
-	int start(const char* msg, gpiochip* chip, size_t pin, float frequency, float duty) {
+	int start(const char* /*msg*/, gpiochip* chip, size_t pin, float frequency, float duty) {
 		int ret;
 
 		ret = chip->chip->setPadPWM(pin, frequency, duty);

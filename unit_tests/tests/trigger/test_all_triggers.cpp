@@ -61,8 +61,8 @@ TEST_P(AllTriggersFixture, TestTrigger) {
 
 	persistent_config_s pc{};
 	Engine e;
-	Engine* engine = &e;
-	EngineTestHelperBase base(engine, &pc.engineConfiguration, &pc);
+	Engine* eng = &e;
+	EngineTestHelperBase base(eng, &pc.engineConfiguration, &pc);
 
 #if EFI_UNIT_TEST
 	extern TriggerDecoderBase initState;

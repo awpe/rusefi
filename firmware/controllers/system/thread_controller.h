@@ -23,6 +23,8 @@ private:
 	bool m_started = false;
 	chibios_rt::ThreadReference ref;
 
+	using chibios_rt::BaseStaticThread<TStackSize>::start;
+
 protected:
 	// Override this function to implement your controller's thread's behavior.
 	virtual void ThreadTask() = 0;

@@ -18,7 +18,7 @@ TEST(BufferedWriter, WriteSmall) {
 	// No calls to dut expected
 	StrictMock<MockBufferedWriter<10>> dut;
 
-	EXPECT_EQ(0, dut.write(testBuffer, 5));
+	EXPECT_EQ(0u, dut.write(testBuffer, 5));
 }
 
 TEST(BufferedWriter, WriteSmallFlush) {

@@ -258,14 +258,14 @@ static void SetNextCompositeEntry(efitick_t timestamp) {
 #define JSON_TRG_PID 4
 #define JSON_CAM_PID 10
 
-void LogTriggerSync(bool isSync, efitick_t timestamp) {
+void LogTriggerSync([[maybe_unused]] bool isSync, [[maybe_unused]] efitick_t timestamp) {
 #if EFI_UNIT_TEST
         jsonTraceEntry("sync", 3, /*isEnter*/isSync, timestamp);
 #else
 #endif
 }
 
-void LogTriggerCamTooth(bool isRising, efitick_t timestamp, int index) {
+void LogTriggerCamTooth([[maybe_unused]] bool isRising, [[maybe_unused]] efitick_t timestamp, [[maybe_unused]] int index) {
 #if EFI_UNIT_TEST
         jsonTraceEntry("cam", JSON_CAM_PID + index, /*isEnter*/isRising, timestamp);
 #else
@@ -342,7 +342,7 @@ void LogTriggerTopDeadCenter(efitick_t timestamp) {
 	SetNextCompositeEntry(timestamp + 10);
 }
 
-void LogTriggerCoilState(efitick_t timestamp, size_t index, bool state) {
+void LogTriggerCoilState(efitick_t timestamp, [[maybe_unused]] size_t index, bool state) {
 #if EFI_UNIT_TEST
 	jsonTraceEntry("coil", 20 + index, state, timestamp);
 #endif // EFI_UNIT_TEST
@@ -354,7 +354,7 @@ void LogTriggerCoilState(efitick_t timestamp, size_t index, bool state) {
 	//SetNextCompositeEntry(timestamp, trigger1, trigger2, trigger);
 }
 
-void LogTriggerInjectorState(efitick_t timestamp, size_t index, bool state) {
+void LogTriggerInjectorState(efitick_t timestamp, [[maybe_unused]] size_t index, bool state) {
 #if EFI_UNIT_TEST
 	jsonTraceEntry("inj", 30 + index, state, timestamp);
 #endif // EFI_UNIT_TEST
