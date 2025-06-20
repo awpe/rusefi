@@ -145,9 +145,9 @@ private:
 	float m_fuelCorrection = 1.0f;
 
 	// todo: migrate to engineState->desiredRpmLimit to get this variable logged
-	float m_revLimit;
+	float m_revLimit{};
 	ClearReason m_rpmLimitReason = ClearReason::None;
-	float resumeRpm;
+	float resumeRpm{};
 
 	// Tracks how long since a cut (ignition or fuel) was active for any reason
 	Timer m_lastCutTime;

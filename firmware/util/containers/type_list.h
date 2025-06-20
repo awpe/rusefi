@@ -35,6 +35,10 @@ struct type_list<base_t, tail_t...> {
     type_list<base_t> first;
     type_list<tail_t...> others;
 
+#if EFI_UNIT_TEST
+    virtual ~type_list() = default;
+#endif
+
     static_assert(!decltype(others)::template has<base_t>(), "Each type can only be listed once.");
 
     template<typename count_t>

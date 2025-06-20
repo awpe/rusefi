@@ -111,8 +111,8 @@ public:
 	void moveTimeForwardMs(float deltaTimeMs);
 	void moveTimeForwardSec(float deltaTimeSec);
 
-	Engine engine;
-	persistent_config_s persistentConfig;
+	Engine engine{};
+	persistent_config_s persistentConfig{};
 
 	std::unique_ptr<::testing::NiceMock<MockAirmass>> mockAirmass;
 
@@ -130,7 +130,7 @@ warningBuffer_t * getRecentWarnings();
 
 // used by EngineTestHelper::spin60_2UntilDeg func
 struct testSpinEngineUntilData {
-	float currentDegree;
-	int currentTooth;
-	int toothCount;
+	float currentDegree{};
+	int currentTooth{};
+	int toothCount{};
 };

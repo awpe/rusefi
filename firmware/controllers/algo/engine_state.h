@@ -15,6 +15,7 @@
 class EngineState : public engine_state_s {
 public:
 	EngineState();
+
 	void periodicFastCallback();
 	void updateTChargeK(float rpm, float tps);
 
@@ -23,61 +24,61 @@ public:
 	/**
 	 * always 360 or 720, never zero
 	 */
-	angle_t engineCycle;
+	angle_t engineCycle{};
 
-	bool useOddFireWastedSpark = false;
+	bool useOddFireWastedSpark{};
 
-	float injectionStage2Fraction = 0;
+	float injectionStage2Fraction{};
 
-	Timer crankingTimer;
+	Timer crankingTimer{};
 
-	WarningCodeState warnings;
+	WarningCodeState warnings{};
 
 	// Estimated airflow based on whatever airmass model is active
-	float airflowEstimate = 0;
+	float airflowEstimate{};
 
-	float auxValveStart = 0;
-	float auxValveEnd = 0;
+	float auxValveStart{};
+	float auxValveEnd{};
 
 	/**
 	 * MAP averaging angle start, in relation to '0' trigger index index
 	 */
-	angle_t mapAveragingStart[MAX_CYLINDER_COUNT];
-	angle_t mapAveragingDuration = 0;
+	angle_t mapAveragingStart[MAX_CYLINDER_COUNT]{};
+	angle_t mapAveragingDuration{};
 
 	/**
 	 * timing advance is angle distance before Top Dead Center (TDP), i.e. "10 degree timing advance" means "happens 10 degrees before TDC"
 	 */
-	angle_t timingAdvance[MAX_CYLINDER_COUNT] = {0};
+	angle_t timingAdvance[MAX_CYLINDER_COUNT]{};
 
 	// Angle between firing the main (primary) spark and the secondary (trailing) spark
-	angle_t trailingSparkAngle = 0;
+	angle_t trailingSparkAngle{};
 
-	Timer timeSinceLastTChargeK;
+	Timer timeSinceLastTChargeK{};
 
 	/**
 	 * Raw fuel injection duration produced by current fuel algorithm, without any correction
 	 */
-	floatms_t baseFuel = 0;
+	floatms_t baseFuel{};
 
 	/**
 	 * TPS acceleration: extra fuel amount
 	 */
-	floatms_t tpsAccelEnrich = 0;
+	floatms_t tpsAccelEnrich{};
 
 	/**
 	 * Each individual fuel injection duration for current engine cycle, without wall wetting
 	 * including everything including injector lag, both cranking and running
 	 * @see getInjectionDuration()
 	 */
-	floatms_t injectionDuration = 0;
-	floatms_t injectionDurationStage2 = 0;
+	floatms_t injectionDuration{};
+	floatms_t injectionDurationStage2{};
 
-	angle_t injectionOffset = 0;
+	angle_t injectionOffset{};
 
-	multispark_state multispark;
+	multispark_state multispark{};
 
-	bool shouldUpdateInjectionTiming = true;
+	bool shouldUpdateInjectionTiming{true};
 };
 
 EngineState * getEngineState();

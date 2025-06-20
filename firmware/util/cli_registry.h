@@ -74,7 +74,7 @@ typedef void (*VoidCharPtrCharPtrCharPtrCharPtrCharPtr)(const char *, const char
 void resetConsoleActions(void);
 void helpCommand(void);
 void initConsoleLogic();
-void handleConsoleLine(char *line);
+void handleConsoleLine(char const* line);
 void addConsoleAction(const char *token, Void callback);
 void addConsoleActionP(const char *token, VoidPtr callback, void *param);
 

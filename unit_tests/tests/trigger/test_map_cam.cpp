@@ -32,7 +32,7 @@ TEST(trigger, map_cam_by_magic_point) {
 	// Nothing should have been scheduled yet
 	ASSERT_EQ(1, engine->scheduler.size());
 	scheduling_s* next = engine->scheduler.getForUnitTest(0);
-	auto const fireSparkAndPrepareNextScheduleAction{ action_s::make<fireSparkAndPrepareNextSchedule>((IgnitionEvent*){})};
+	auto const fireSparkAndPrepareNextScheduleAction{ action_s::make<fireSparkAndPrepareNextSchedule>(static_cast<IgnitionEvent*>(nullptr))};
 
 	eth.assertEvent5("spark down#0", 0, fireSparkAndPrepareNextScheduleAction, 188333);
 
@@ -48,7 +48,7 @@ TEST(trigger, map_cam_by_magic_point) {
 
 	// We have "VVT" sync, things should be scheduled!
 	ASSERT_EQ(2, engine->scheduler.size());
-	auto const turnSparkPinHighStartChargingAction{ action_s::make<turnSparkPinHighStartCharging>((IgnitionEvent*){})};
+	auto const turnSparkPinHighStartChargingAction{ action_s::make<turnSparkPinHighStartCharging>(static_cast<IgnitionEvent*>(nullptr))};
 	eth.assertEvent5("spark down#0", 0, turnSparkPinHighStartChargingAction, 185333);
 	eth.assertEvent5("spark down#1", 1, fireSparkAndPrepareNextScheduleAction, 188333);
 }

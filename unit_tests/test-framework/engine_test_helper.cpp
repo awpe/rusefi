@@ -82,7 +82,6 @@ FILE *jsonTrace = nullptr;
 EngineTestHelper::EngineTestHelper(engine_type_e engineType, configuration_callback_t configurationCallback, const std::unordered_map<SensorType, float>& sensorValues) :
 	EngineTestHelperBase(&engine, &persistentConfig.engineConfiguration, &persistentConfig)
 {
-	persistentConfig = decltype(persistentConfig){};
 	pinRepository = decltype(pinRepository){};
 
 	auto testInfo = ::testing::UnitTest::GetInstance()->current_test_info();

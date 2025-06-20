@@ -28,7 +28,7 @@ static void constructTriggerFromRecording(CsvReader *reader) {
 
 		double time360 = last - reader->history.get(magic - 1 - 8);
 
-		float current = 0;
+		//float current = 0;
 
 		for (int i=len - 1;i>=0;i--) {
 			double tooth = last - reader->history.get(magic - 1 - i);
@@ -40,7 +40,7 @@ static void constructTriggerFromRecording(CsvReader *reader) {
 			const char * front = isRise ? "RISE" : "FALL";
 
 			printf("\ts->addEvent360(%f, TriggerValue::%s);\n", angle, front);
-			current += tooth;
+			//current += tooth;
 		}
 
 //		printf("time360=%f\n", time360);

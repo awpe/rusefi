@@ -116,7 +116,7 @@ void prepareOutputSignals() {
 
 #if EFI_UNIT_TEST
 	if (verboseMode) {
-		printf("prepareOutputSignals %d %s\r\n", engineConfiguration->trigger.type, getIgnition_mode_e(engineConfiguration->ignitionMode));
+		printf("prepareOutputSignals %u %s\r\n", static_cast<uint32_t>(engineConfiguration->trigger.type), getIgnition_mode_e(engineConfiguration->ignitionMode));
 	}
 #endif /* EFI_UNIT_TEST */
 

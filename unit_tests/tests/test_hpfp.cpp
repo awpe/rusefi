@@ -285,7 +285,7 @@ TEST(HPFP, Schedule) {
 
 	hpfp.onFastCallback();
 
-	auto const pinTurnOffAction{ action_s::make<HpfpController::pinTurnOff>((HpfpController*){}) };
+	auto const pinTurnOffAction{ action_s::make<HpfpController::pinTurnOff>(static_cast<HpfpController*>(nullptr)) };
 	// First event was scheduled by setRpmValue with 0 injection mass.  So, it's off.
 	eth.assertTriggerEvent("h0", 0, &hpfp.m_event, pinTurnOffAction, 270);
 
@@ -295,7 +295,7 @@ TEST(HPFP, Schedule) {
 	// Mock executor doesn't run events, so we run it manually
 	HpfpController::pinTurnOff(&hpfp);
 
-	auto const pinTurnOnAction{ action_s::make<HpfpController::pinTurnOn>((HpfpController*){}) };
+	auto const pinTurnOnAction{ action_s::make<HpfpController::pinTurnOn>(static_cast<HpfpController*>(nullptr)) };
 	// Now we should have a regular on/off event.
 	eth.assertTriggerEvent("h1", 0, &hpfp.m_event, pinTurnOnAction, 450 - 37.6923065f);
 
