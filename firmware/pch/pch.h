@@ -9,8 +9,6 @@
  * this file.
  */
 
-#pragma once
-
 #include <rusefi/arrays.h>
 #include <rusefi/crc.h>
 #include <rusefi/fragments.h>

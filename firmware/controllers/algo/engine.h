@@ -101,10 +101,10 @@ class Engine final : public TriggerStateListener {
 public:
     Engine();
 
-    StartStopState startStopState;
+    StartStopState startStopState{};
 
 
-    TunerStudioOutputChannels outputChannels;
+    TunerStudioOutputChannels outputChannels{};
 
     /**
      * Sometimes for instance during shutdown we need to completely supress CAN TX
@@ -126,11 +126,11 @@ public:
 
 
 #if EFI_DYNO_VIEW
-    DynoView dynoInstance;
+    DynoView dynoInstance{};
 #endif
 
 #if EFI_ENGINE_CONTROL
-    FuelComputer fuelComputer;
+    FuelComputer fuelComputer{};
 #endif // EFI_ENGINE_CONTROL
 
     type_list<
@@ -183,7 +183,7 @@ public:
 #include "modules_list_generated.h"
 
         EngineModule // dummy placeholder so the previous entries can all have commas
-    > engineModules;
+    > engineModules{};
 
     /**
      * Slightly shorter helper function to keep the code looking clean.
@@ -203,21 +203,21 @@ public:
 #endif
 
     // todo: boolean sensors should leverage sensor framework #6342
-    SwitchedState clutchUpSwitchedState;
-    SwitchedState brakePedalSwitchedState;
-    SwitchedState acButtonSwitchedState;
-    SimpleSwitchedState luaDigitalInputState[LUA_DIGITAL_INPUT_COUNT];
+    SwitchedState clutchUpSwitchedState{};
+    SwitchedState brakePedalSwitchedState{};
+    SwitchedState acButtonSwitchedState{};
+    SimpleSwitchedState luaDigitalInputState[LUA_DIGITAL_INPUT_COUNT]{};
 
 #if EFI_LAUNCH_CONTROL
-    LaunchControlBase launchController;
-    ShiftTorqueReductionController shiftTorqueReductionController;
-    SoftSparkLimiter softSparkLimiter;
+    LaunchControlBase launchController{};
+    ShiftTorqueReductionController shiftTorqueReductionController{};
+    SoftSparkLimiter softSparkLimiter{};
     // technically not directly related to EFI_LAUNCH_CONTROL since useful for TCU
-    SoftSparkLimiter hardSparkLimiter;
+    SoftSparkLimiter hardSparkLimiter{};
 #endif // EFI_LAUNCH_CONTROL
 
 #if EFI_ANTILAG_SYSTEM
-    AntilagSystemBase antilagController;
+    AntilagSystemBase antilagController{};
 #endif // EFI_ANTILAG_SYSTEM
 
 #if EFI_ANTILAG_SYSTEM
@@ -225,10 +225,10 @@ public:
 #endif /* EFI_ANTILAG_SYSTEM */
 
 #if EFI_SHAFT_POSITION_INPUT
-    LambdaMonitor lambdaMonitor;
+    LambdaMonitor lambdaMonitor{};
 #endif // EFI_ENGINE_CONTROL
 
-    IgnitionState ignitionState;
+    IgnitionState ignitionState{};
     void resetLua();
 
 #if EFI_SHAFT_POSITION_INPUT
@@ -240,7 +240,7 @@ public:
     void setConfig();
 
 #if EFI_AUX_VALVES
-    AuxActor auxValves[AUX_DIGITAL_VALVE_COUNT][2];
+    AuxActor auxValves[AUX_DIGITAL_VALVE_COUNT][2]{};
 #endif // EFI_AUX_VALVES
 
 #if EFI_UNIT_TEST
@@ -258,14 +258,14 @@ public:
     // cost to resolve pointer, we use instances as a micro optimization
 #if EFI_SIGNAL_EXECUTOR_ONE_TIMER
   // while theoretically PROD could be using EFI_SIGNAL_EXECUTOR_SLEEP, as of 2024 all PROD uses SingleTimerExecutor
-    SingleTimerExecutor scheduler;
+    SingleTimerExecutor scheduler{};
 #endif
 #if EFI_SIGNAL_EXECUTOR_SLEEP
   // at the moment this one is used exclusively by x86 simulator it should theoretically be possible to make it available in embedded if needed
-    SleepExecutor scheduler;
+    SleepExecutor scheduler{};
 #endif
 #if EFI_UNIT_TEST
-    TestExecutor scheduler;
+    TestExecutor scheduler{};
 
     std::function<void(IgnitionEvent*, bool)> onIgnitionEvent;
     std::function<void(const IgnitionEvent&, efitick_t, angle_t, efitick_t)> onScheduleTurnSparkPinHighStartCharging
@@ -275,10 +275,10 @@ public:
 #endif // EFI_UNIT_TEST
 
 #if EFI_ENGINE_CONTROL
-    FuelSchedule injectionEvents;
-    IgnitionEventList ignitionEvents;
-    scheduling_s tdcScheduler[2];
-    OneCylinder cylinders[MAX_CYLINDER_COUNT];
+    FuelSchedule injectionEvents{};
+    IgnitionEventList ignitionEvents{};
+    scheduling_s tdcScheduler[2]{};
+    OneCylinder cylinders[MAX_CYLINDER_COUNT]{};
 #endif /* EFI_ENGINE_CONTROL */
 
 #if EFI_ELECTRONIC_THROTTLE_BODY
@@ -293,10 +293,10 @@ public:
 
     bool slowCallBackWasInvoked = false;
 
-    RpmCalculator rpmCalculator;
+    RpmCalculator rpmCalculator{};
 
-    Timer configBurnTimer;
-    Timer engineTypeChangeTimer;
+    Timer configBurnTimer{};
+    Timer engineTypeChangeTimer{};
 
     /**
      * This counter is incremented every time user adjusts ECU parameters online (either via rusEfi console or other
@@ -305,7 +305,7 @@ public:
     int globalConfigurationVersion = 0;
 
 #if EFI_SHAFT_POSITION_INPUT
-    TriggerCentral triggerCentral;
+    TriggerCentral triggerCentral{};
 #endif // EFI_SHAFT_POSITION_INPUT
 
     /**
@@ -330,16 +330,16 @@ public:
 
     void resetEngineSnifferIfInTestMode();
 
-    EngineState engineState;
+    EngineState engineState{};
 
-    dc_motors_s dc_motors;
+    dc_motors_s dc_motors{};
 #if EFI_SENT_SUPPORT
-    sent_state_s sent_state;
+    sent_state_s sent_state{};
 #endif
 
-    efitimeus_t timeToStopIdleTest = 0;
+    efitimeus_t timeToStopIdleTest{};
 
-    SensorsState sensors;
+    SensorsState sensors{};
 
     void preCalculate();
 
@@ -368,7 +368,7 @@ public:
     void onSparkFireKnockSense(uint8_t cylinderIndex, efitick_t nowNt);
 
 #if EFI_UNIT_TEST
-    AirmassModelBase* mockAirmassModel = nullptr;
+    AirmassModelBase* mockAirmassModel{};
 #endif
 
 private:

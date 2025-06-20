@@ -16,17 +16,18 @@
 
 #include <cstring>
 #include <cstdint>
+#include <cstring>
 
 // looks like some technical debt here?! that's about error: ‘isnan’ is not a member of ‘std’
 #include <cmath>
-#include <rusefi/math.h>
-
-#include "efiprintf.h"
-#include "rusefi/efistringutil.h"
-#include "cli_registry.h"
 
 /* for isspace() */
-#include <ctype.h>
+#include <cctype>
+
+#include <rusefi/efistringutil.h>
+#include <rusefi/math.h>
+#include "efiprintf.h"
+#include "cli_registry.h"
 
 #ifndef CONSOLE_MAX_ACTIONS
 #define CONSOLE_MAX_ACTIONS 256
@@ -505,11 +506,11 @@ static int handleConsoleLineInternal(const char *commandLine) {
 /**
  * @brief This function takes care of one command line once we have it
  */
-void handleConsoleLine(char *line) {
-	if (line == NULL)
+void handleConsoleLine(char const*line) {
+	if (line == nullptr)
 		return; // error detected
 
-	int lineLength = std::strlen(line);
+	size_t lineLength = strnlen(line, MAX_CMD_LINE_LENGTH+1);
 	if (lineLength > MAX_CMD_LINE_LENGTH) {
 		// todo: better reaction to excessive line
 		efiPrintf("Long line?");
