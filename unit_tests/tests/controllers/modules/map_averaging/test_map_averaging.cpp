@@ -10,7 +10,7 @@
 #include "harley.h"
 
 namespace {
-	auto const startAveragingAction{ action_s::make<startAveraging>((mapSampler*){}) };
+	auto const startAveragingAction{ action_s::make<startAveraging>(static_cast<mapSampler*>(nullptr)) };
 }
 
 TEST(EngineModules, MapAveragingModule_onEnginePhase) {

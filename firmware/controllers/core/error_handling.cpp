@@ -6,9 +6,7 @@
  */
 
 #include "pch.h"
-#include "rusefi/efistringutil.h"
 #include "os_util.h"
-#include "backup_ram.h"
 #include "error_handling_led.h"
 #include "log_hard_fault.h"
 #include "rusefi/critical_error.h"

@@ -96,7 +96,7 @@ USE_OPT += -DHW_HELLEN_NB1=1 -DHW_HELLEN_NB2=1
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT = -std=gnu99 -fgnu89-inline
+  USE_COPT = -std=c11
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -160,7 +160,7 @@ ASMSRC =
 CWARN = -Wall -Wextra -Wstrict-prototypes -pedantic -Wmissing-prototypes -Wold-style-definition
 
 # Define C++ warning options here
-CPPWARN = -Wall -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-format -Wno-unused-parameter
+CPPWARN = -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-format -Wno-unused-parameter
 
 # TODO: improve on this code duplication drama!
 # current problem with older gcc in unit_tests is

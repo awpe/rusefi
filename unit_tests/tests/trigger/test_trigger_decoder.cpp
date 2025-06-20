@@ -253,13 +253,13 @@ TEST(misc, testRpmCalculator) {
 	ASSERT_EQ( 4,  engine->scheduler.size()) << "queue size/2";
 	{
 		auto const ev0{ engine->scheduler.getForUnitTest(0) };
-		auto const turnSparkPinHighStartChargingAction{ action_s::make<turnSparkPinHighStartCharging>((IgnitionEvent*){}) };
+		auto const turnSparkPinHighStartChargingAction{ action_s::make<turnSparkPinHighStartCharging>(static_cast<IgnitionEvent*>(nullptr)) };
 		assertActionCallbacksEqual("Call@0", ev0->action, turnSparkPinHighStartChargingAction);
 		ASSERT_EQ(start + 944, ev0->getMomentUs()) << "ev 0";
 		EXPECT_EQ(&enginePins.coils[0], ev0->action.getArgument<IgnitionEvent*>()->outputs[0]) << "coil 0";
 
 		auto const ev1{ engine->scheduler.getForUnitTest(1) };
-		auto const fireSparkAndPrepareNextScheduleAction{ action_s::make<fireSparkAndPrepareNextSchedule>((IgnitionEvent*){}) };
+		auto const fireSparkAndPrepareNextScheduleAction{ action_s::make<fireSparkAndPrepareNextSchedule>(static_cast<IgnitionEvent*>(nullptr)) };
 		assertActionCallbacksEqual("Call@1", ev1->action, fireSparkAndPrepareNextScheduleAction);
 		ASSERT_EQ(start + 944 + 1000 * FORD_INLINE_DWELL, ev1->getMomentUs()) << "ev 1";
 		EXPECT_EQ(&enginePins.coils[0], ev1->action.getArgument<IgnitionEvent*>()->outputs[0]) << "coil 1";

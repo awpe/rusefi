@@ -700,7 +700,7 @@ void setDateTime(const char * const isoDateTime) {
 #if EFI_RTC
 	printRtcDateTime();
 	if (strlen(isoDateTime) >= 19 && isoDateTime[10] == 'T') {
-		efidatetime_t dateTime;
+		efidatetime_t dateTime{};
 		dateTime.year = atoi(isoDateTime);
 		dateTime.month = atoi(isoDateTime + 5);
 		dateTime.day = atoi(isoDateTime + 8);

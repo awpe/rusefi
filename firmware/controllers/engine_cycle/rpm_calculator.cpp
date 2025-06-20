@@ -253,7 +253,7 @@ void RpmCalculator::setSpinningUp(efitick_t nowNt) {
  * updated here.
  * This callback is invoked on interrupt thread.
  */
-void rpmShaftPositionCallback(trigger_event_e ckpSignalType,
+void rpmShaftPositionCallback([[maybe_unused]] trigger_event_e ckpSignalType,
 		uint32_t trgEventIndex, efitick_t nowNt) {
 
 	bool alwaysInstantRpm = engineConfiguration->alwaysInstantRpm;

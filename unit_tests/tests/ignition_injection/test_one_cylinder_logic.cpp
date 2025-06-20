@@ -38,8 +38,8 @@ TEST(issues, issueOneCylinderSpecialCase968) {
 
 	ASSERT_EQ( 2,  engine->scheduler.size()) << "first revolution(s)";
 
-	auto const turnSparkPinHighStartChargingAction{ action_s::make<turnSparkPinHighStartCharging>((IgnitionEvent*){}) };
-	auto const fireSparkAndPrepareNextScheduleAction{ action_s::make<fireSparkAndPrepareNextSchedule>((IgnitionEvent*){}) };
+	auto const turnSparkPinHighStartChargingAction{ action_s::make<turnSparkPinHighStartCharging>(static_cast<IgnitionEvent*>(nullptr)) };
+	auto const fireSparkAndPrepareNextScheduleAction{ action_s::make<fireSparkAndPrepareNextSchedule>(static_cast<IgnitionEvent*>(nullptr)) };
 
 	eth.assertEvent5("spark up#0", 0, turnSparkPinHighStartChargingAction, -expectedDeltaTimeUs - MS2US(DEFAULT_CRANKING_DWELL_MS));
 	eth.assertEvent5("spark down#0", 1, fireSparkAndPrepareNextScheduleAction, -expectedDeltaTimeUs);

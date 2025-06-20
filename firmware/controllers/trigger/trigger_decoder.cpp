@@ -114,7 +114,7 @@ void TriggerWaveform::initializeSyncPoint(TriggerDecoderBase& state,
 
 void TriggerFormDetails::prepareEventAngles(TriggerWaveform *shape) {
 	int triggerShapeSynchPointIndex = shape->triggerShapeSynchPointIndex;
-	if (triggerShapeSynchPointIndex == EFI_ERROR_CODE) {
+	if (triggerShapeSynchPointIndex == static_cast<int>(EFI_ERROR_CODE)) {
 		return;
 	}
 	angle_t firstAngle = shape->getAngle(triggerShapeSynchPointIndex);

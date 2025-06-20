@@ -24,7 +24,7 @@ public:
 #endif
 
 private:
-    int m_index = 0;
+    //int m_index = 0;
     bool m_valid = false;
 
     // This cylinder's position in the firing order (0-based)
@@ -33,11 +33,11 @@ private:
     uint8_t m_cylinderNumber = 0;
 
     // This cylinder's mechanical TDC offset in degrees after #1
-    angle_t m_baseAngleOffset;
+    angle_t m_baseAngleOffset{};
 };
 
 namespace EngineCylinders {
-    void updateCylinders(void);
+    void updateCylinders();
 };
 
 #endif //ENGINE_CILINDER_HPP

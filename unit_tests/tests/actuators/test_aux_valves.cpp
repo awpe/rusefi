@@ -17,7 +17,7 @@ TEST(Actuators, AuxValves) {
 	// Engine must be "spinning" for scheduleByAngle to work
 	engine->rpmCalculator.setRpmValue(1000);
 
-	auto const auxPlainPinTurnOnAction{ action_s::make<auxPlainPinTurnOn>((AuxActor*){}) };
+	auto const auxPlainPinTurnOnAction{ action_s::make<auxPlainPinTurnOn>(static_cast<AuxActor*>(nullptr)) };
 
 	// TODO: This whole block is passing some expected values which are ignored by check implementation, fix?
 

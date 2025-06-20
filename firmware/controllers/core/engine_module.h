@@ -8,6 +8,11 @@
 
 class EngineModule {
 public:
+
+#if EFI_UNIT_TEST
+	virtual ~EngineModule() = default;
+#endif
+
 	// Called exactly once during boot, before configuration is loaded
 	virtual void initNoConfiguration() { }
 

@@ -128,8 +128,6 @@ private:
 #endif
 
 	Timer m_luaAdjustmentTimer;
-
-	efitimeus_t lastTickUs;
 };
 
 void etbPidReset();

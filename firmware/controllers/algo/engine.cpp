@@ -548,7 +548,6 @@ void Engine::periodicFastCallback() {
 
 	boardPeriodicFastCallback();
 
-
 	engineState.periodicFastCallback();
 
 	speedoUpdate();

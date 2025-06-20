@@ -119,11 +119,11 @@ int getCrankDivider(operation_mode_e operationMode) {
 	return 1;
 }
 
-PUBLIC_API_WEAK bool boardIsSpecialVvtDecoder(vvt_mode_e vvtMode) {
+PUBLIC_API_WEAK bool boardIsSpecialVvtDecoder(vvt_mode_e /*vvtMode*/) {
   return false;
 }
 
-PUBLIC_API_WEAK void boardTriggerCallback(efitick_t timestamp, float currentPhase) {}
+PUBLIC_API_WEAK void boardTriggerCallback(efitick_t /*timestamp*/, float /*currentPhase*/) {}
 
 static bool vvtWithRealDecoder(vvt_mode_e vvtMode) {
 	return vvtMode != VVT_INACTIVE
@@ -161,7 +161,7 @@ static void turnOffAllDebugFields() {
 #endif /* EFI_PROD_CODE */
 }
 
-PUBLIC_API_WEAK angle_t customAdjustCustom(TriggerCentral *tc, vvt_mode_e vvtMode) {
+PUBLIC_API_WEAK angle_t customAdjustCustom(TriggerCentral* /*tc*/, vvt_mode_e /*vvtMode*/) {
   return 0;
 }
 
@@ -301,7 +301,7 @@ void hwHandleVvtCamSignal(TriggerValue front, efitick_t nowNt, int index) {
 /**
  * @returns true if tooth should be ignored
  */
-PUBLIC_API_WEAK bool skipToothSpecialShape(size_t index, vvt_mode_e vvtMode, angle_t currentPosition) {
+PUBLIC_API_WEAK bool skipToothSpecialShape(size_t /*index*/, vvt_mode_e vvtMode, angle_t currentPosition) {
 	switch(vvtMode) {
 	case VVT_TOYOTA_3_TOOTH:
 	{
@@ -655,7 +655,7 @@ bool TriggerNoiseFilter::noiseFilter(efitick_t nowNt,
 	return false;
 }
 
-bool TriggerCentral::isMapCamSync(efitick_t timestamp, float currentPhase) {
+bool TriggerCentral::isMapCamSync(efitick_t /*timestamp*/, float currentPhase) {
 		// we are trying to figure out which 360 half of the total 720 degree cycle is which, so we compare those in 360 degree sense.
 		auto toothAngle360 = currentPhase;
 		while (toothAngle360 >= 360) {
@@ -699,7 +699,7 @@ float mapAtAngle[200];
 
 #endif
 
-void TriggerCentral::decodeMapCam(int toothIndexForListeners, efitick_t timestamp, float currentPhase) {
+void TriggerCentral::decodeMapCam([[maybe_unused]] int toothIndexForListeners, efitick_t timestamp, float currentPhase) {
     isDecodingMapCam = engineConfiguration->vvtMode[0] == VVT_MAP_V_TWIN &&
                        			Sensor::getOrZero(SensorType::Rpm) < engineConfiguration->cranking.rpm;
 	if (isDecodingMapCam) {

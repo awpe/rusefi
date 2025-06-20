@@ -196,13 +196,14 @@ static void populateFrame(Fueling3& msg) {
 }
 
 struct PerCylinderKnock {
-  uint8_t knock[8];
+	static constexpr int SUPPORTED_CYLINDER_CNT = 8;
+	uint8_t knock[SUPPORTED_CYLINDER_CNT];
 };
 
 static void populateFrame(PerCylinderKnock& msg) {
-  for (size_t index = 0;index<std::min(8, MAX_CYLINDER_COUNT);index++) {
-	  msg.knock[index] = engine->module<KnockController>()->m_knockCyl[index];
-  }
+	for (int index = 0; index < std::min(PerCylinderKnock::SUPPORTED_CYLINDER_CNT, MAX_CYLINDER_COUNT); index++) {
+		msg.knock[index] = engine->module<KnockController>()->m_knockCyl[index];
+	}
 }
 
 struct Cams {
