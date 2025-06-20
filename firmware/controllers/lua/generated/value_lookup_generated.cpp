@@ -38,6 +38,39 @@ float getConfigValueByName(const char *name) {
 // idlePositionMax
 		case -1256791970:
 			return engineConfiguration->idlePositionMax;
+// ltitEnabled
+		case 1049828813:
+			return engineConfiguration->ltitEnabled;
+// ltitEmaAlpha
+		case -1008029221:
+			return engineConfiguration->ltitEmaAlpha;
+// ltitStableRpmThreshold
+		case 341693817:
+			return engineConfiguration->ltitStableRpmThreshold;
+// ltitStableTime
+		case 496209836:
+			return engineConfiguration->ltitStableTime;
+// ltitCorrectionRate
+		case 743163558:
+			return engineConfiguration->ltitCorrectionRate;
+// ltitIgnitionOnDelay
+		case -135093297:
+			return engineConfiguration->ltitIgnitionOnDelay;
+// ltitIgnitionOffSaveDelay
+		case 423655964:
+			return engineConfiguration->ltitIgnitionOffSaveDelay;
+// ltitClampMin
+		case -1622665645:
+			return engineConfiguration->ltitClampMin;
+// ltitClampMax
+		case -1622665899:
+			return engineConfiguration->ltitClampMax;
+// ltitSmoothingIntensity
+		case 341519713:
+			return engineConfiguration->ltitSmoothingIntensity;
+// ltitIntegratorThreshold
+		case -2065042706:
+			return engineConfiguration->ltitIntegratorThreshold;
 // launchFuelAdderPercent
 		case -904771683:
 			return engineConfiguration->launchFuelAdderPercent;
@@ -155,6 +188,9 @@ float getConfigValueByName(const char *name) {
 // enableStagedInjection
 		case 1160459527:
 			return engineConfiguration->enableStagedInjection;
+// useIdleAdvanceWhileCoasting
+		case 586887955:
+			return engineConfiguration->useIdleAdvanceWhileCoasting;
 // tpsMin
 		case 513872736:
 			return engineConfiguration->tpsMin;
@@ -446,9 +482,6 @@ float getConfigValueByName(const char *name) {
 // externalRusEfiGdiModule
 		case 1546871344:
 			return engineConfiguration->externalRusEfiGdiModule;
-// flipWboChannels
-		case 950454372:
-			return engineConfiguration->flipWboChannels;
 // measureMapOnlyInOneCylinder
 		case -1236202550:
 			return engineConfiguration->measureMapOnlyInOneCylinder;
@@ -680,6 +713,9 @@ float getConfigValueByName(const char *name) {
 // noFuelTrimAfterDfcoTime
 		case 1286770247:
 			return engineConfiguration->noFuelTrimAfterDfcoTime;
+// noFuelTrimAfterAccelTime
+		case -1460984893:
+			return engineConfiguration->noFuelTrimAfterAccelTime;
 // launchSpeedThreshold
 		case -1743747394:
 			return engineConfiguration->launchSpeedThreshold;
@@ -728,6 +764,24 @@ float getConfigValueByName(const char *name) {
 // stft.startupDelay
 		case 1028902582:
 			return engineConfiguration->stft.startupDelay;
+// ltft.enabled
+		case -1407066344:
+			return engineConfiguration->ltft.enabled;
+// ltft.correctionEnabled
+		case -1686338448:
+			return engineConfiguration->ltft.correctionEnabled;
+// ltft.deadband
+		case -1888587696:
+			return engineConfiguration->ltft.deadband;
+// ltft.maxAdd
+		case 1427207708:
+			return engineConfiguration->ltft.maxAdd;
+// ltft.maxRemove
+		case -269110527:
+			return engineConfiguration->ltft.maxRemove;
+// ltft.timeConstant
+		case 1941168166:
+			return engineConfiguration->ltft.timeConstant;
 // tps2SecondaryMin
 		case 18659930:
 			return engineConfiguration->tps2SecondaryMin;
@@ -1754,6 +1808,9 @@ float getConfigValueByName(const char *name) {
 // speedometerPulsePerKm
 		case 1007396714:
 			return engineConfiguration->speedometerPulsePerKm;
+// ignKeyAdcDivider
+		case -506535813:
+			return engineConfiguration->ignKeyAdcDivider;
 // maxInjectorDutyInstant
 		case 896753456:
 			return engineConfiguration->maxInjectorDutyInstant;
@@ -2028,6 +2085,61 @@ bool setConfigValueByName(const char *name, float value) {
 		engineConfiguration->idlePositionMax = (int)value;
 		return 1;
 	}
+		case 1049828813:
+	{
+		engineConfiguration->ltitEnabled = (int)value;
+		return 1;
+	}
+		case -1008029221:
+	{
+		engineConfiguration->ltitEmaAlpha = (int)value;
+		return 1;
+	}
+		case 341693817:
+	{
+		engineConfiguration->ltitStableRpmThreshold = (int)value;
+		return 1;
+	}
+		case 496209836:
+	{
+		engineConfiguration->ltitStableTime = (int)value;
+		return 1;
+	}
+		case 743163558:
+	{
+		engineConfiguration->ltitCorrectionRate = (int)value;
+		return 1;
+	}
+		case -135093297:
+	{
+		engineConfiguration->ltitIgnitionOnDelay = (int)value;
+		return 1;
+	}
+		case 423655964:
+	{
+		engineConfiguration->ltitIgnitionOffSaveDelay = (int)value;
+		return 1;
+	}
+		case -1622665645:
+	{
+		engineConfiguration->ltitClampMin = value;
+		return 1;
+	}
+		case -1622665899:
+	{
+		engineConfiguration->ltitClampMax = value;
+		return 1;
+	}
+		case 341519713:
+	{
+		engineConfiguration->ltitSmoothingIntensity = (int)value;
+		return 1;
+	}
+		case -2065042706:
+	{
+		engineConfiguration->ltitIntegratorThreshold = value;
+		return 1;
+	}
 		case -904771683:
 	{
 		engineConfiguration->launchFuelAdderPercent = (int)value;
@@ -2221,6 +2333,11 @@ bool setConfigValueByName(const char *name, float value) {
 		case 1160459527:
 	{
 		engineConfiguration->enableStagedInjection = (int)value;
+		return 1;
+	}
+		case 586887955:
+	{
+		engineConfiguration->useIdleAdvanceWhileCoasting = (int)value;
 		return 1;
 	}
 		case 513872736:
@@ -2708,11 +2825,6 @@ bool setConfigValueByName(const char *name, float value) {
 		engineConfiguration->externalRusEfiGdiModule = (int)value;
 		return 1;
 	}
-		case 950454372:
-	{
-		engineConfiguration->flipWboChannels = (int)value;
-		return 1;
-	}
 		case -1236202550:
 	{
 		engineConfiguration->measureMapOnlyInOneCylinder = (int)value;
@@ -3098,6 +3210,11 @@ bool setConfigValueByName(const char *name, float value) {
 		engineConfiguration->noFuelTrimAfterDfcoTime = (int)value;
 		return 1;
 	}
+		case -1460984893:
+	{
+		engineConfiguration->noFuelTrimAfterAccelTime = (int)value;
+		return 1;
+	}
 		case -1743747394:
 	{
 		engineConfiguration->launchSpeedThreshold = (int)value;
@@ -3176,6 +3293,36 @@ bool setConfigValueByName(const char *name, float value) {
 		case 1028902582:
 	{
 		engineConfiguration->stft.startupDelay = (int)value;
+		return 1;
+	}
+		case -1407066344:
+	{
+		engineConfiguration->ltft.enabled = (int)value;
+		return 1;
+	}
+		case -1686338448:
+	{
+		engineConfiguration->ltft.correctionEnabled = (int)value;
+		return 1;
+	}
+		case -1888587696:
+	{
+		engineConfiguration->ltft.deadband = (int)value;
+		return 1;
+	}
+		case 1427207708:
+	{
+		engineConfiguration->ltft.maxAdd = (int)value;
+		return 1;
+	}
+		case -269110527:
+	{
+		engineConfiguration->ltft.maxRemove = (int)value;
+		return 1;
+	}
+		case 1941168166:
+	{
+		engineConfiguration->ltft.timeConstant = (int)value;
 		return 1;
 	}
 		case 18659930:
@@ -4886,6 +5033,11 @@ bool setConfigValueByName(const char *name, float value) {
 		case 1007396714:
 	{
 		engineConfiguration->speedometerPulsePerKm = (int)value;
+		return 1;
+	}
+		case -506535813:
+	{
+		engineConfiguration->ignKeyAdcDivider = value;
 		return 1;
 	}
 		case 896753456:

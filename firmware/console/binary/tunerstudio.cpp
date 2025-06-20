@@ -92,13 +92,6 @@
 
 #if EFI_TUNER_STUDIO
 
-#define TS_PAGE_SETTINGS			0x0000
-// Issue TS zeroes LSB byte of pageIdentifier
-#define TS_PAGE_SCATTER_OFFSETS		0x0100
-
-// Each offset is uint16_t
-static_assert(TS_SCATTER_PAGE_SIZE == TS_SCATTER_OFFSETS_COUNT * 2);
-
 // We have TS protocol limitation: offset within one settings page is uin16_t type.
 static_assert(sizeof(*config) <= 65536);
 
@@ -171,10 +164,55 @@ void tunerStudioDebug(TsChannelBase* tsChannel, const char *msg) {
 #endif /* EFI_TUNER_STUDIO_VERBOSE */
 }
 
-static uint8_t* getWorkingPageAddr() {
-	// TODO: why engineConfiguration, not config
-	// TS has access to whole persistent_config_s
-	return (uint8_t*)engineConfiguration;
+static uint8_t* getWorkingPageAddr(TsChannelBase* tsChannel, size_t page, size_t offset) {
+	// TODO: validate offset?
+	switch (page) {
+	case TS_PAGE_SETTINGS:
+		// TODO: why engineConfiguration, not config
+		// TS has access to whole persistent_config_s
+		return (uint8_t*)engineConfiguration + offset;
+#if EFI_TS_SCATTER
+	case TS_PAGE_SCATTER_OFFSETS:
+		return (uint8_t *)tsChannel->page1.highSpeedOffsets + offset;
+#endif
+#if EFI_LTFT_CONTROL
+	case TS_PAGE_LTFT_TRIMS:
+		return (uint8_t *)ltftGetTsPage() + offset;
+#endif
+	default:
+		return nullptr;
+	}
+}
+
+static constexpr size_t getTunerStudioPageSize(size_t page) {
+	switch (page) {
+	case TS_PAGE_SETTINGS:
+		return TOTAL_CONFIG_SIZE;
+#if EFI_TS_SCATTER
+	case TS_PAGE_SCATTER_OFFSETS:
+		return PAGE_SIZE_1;
+#endif
+#if EFI_LTFT_CONTROL
+	case TS_PAGE_LTFT_TRIMS:
+		return ltftGetTsPageSize();
+#endif
+	default:
+		return 0;
+	}
+}
+
+// Validate whether the specified offset and count would cause an overrun in the tune.
+// Returns true if an overrun would occur.
+static bool validateOffsetCount(size_t page, size_t offset, size_t count, TsChannelBase* tsChannel) {
+	size_t allowedSize = getTunerStudioPageSize(page);
+	if (offset + count > allowedSize) {
+		efiPrintf("TS: Project mismatch? Too much configuration requested %d+%d>%d", offset, count, allowedSize);
+		tunerStudioError(tsChannel, "ERROR: out of range");
+		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE, "bad_offset");
+		return true;
+	}
+
+	return false;
 }
 
 static void sendOkResponse(TsChannelBase *tsChannel) {
@@ -215,8 +253,6 @@ void TunerStudio::sendErrorCode(TsChannelBase* tsChannel, uint8_t code, const ch
 	::sendErrorCode(tsChannel, code, msg);
 }
 
-bool validateOffsetCount(size_t offset, size_t count, TsChannelBase* tsChannel);
-
 PUBLIC_API_WEAK bool isBoardAskingTriggerTsRefresh() {
 	return false;
 }
@@ -242,22 +278,29 @@ void TunerStudio::handleWriteChunkCommand(TsChannelBase* tsChannel, uint16_t pag
 	efiPrintf("TS -> Page %d write chunk offset %d count %d (output_count=%d)",
 		page, offset, count, tsState.outputChannelsCommandCounter);
 
+
+	if (validateOffsetCount(page, offset, count, tsChannel)) {
+		tunerStudioError(tsChannel, "ERROR: WR out of range");
+		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
+		return;
+	}
+
+	uint8_t * addr = getWorkingPageAddr(tsChannel, page, offset);
+	if (addr == nullptr) {
+		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE, "ERROR: WR invalid page");
+		return;
+	}
+
+	// Special case
 	if (page == TS_PAGE_SETTINGS) {
 		if (isLockedFromUser()) {
 			sendErrorCode(tsChannel, TS_RESPONSE_UNRECOGNIZED_COMMAND, "locked");
 			return;
 		}
 
-		if (validateOffsetCount(offset, count, tsChannel)) {
-			tunerStudioError(tsChannel, "ERROR: WR out of range");
-			sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
-			return;
-		}
-
 		// Skip the write if a preset was just loaded - we don't want to overwrite it
 		// [tag:popular_vehicle]
 		if (!needToTriggerTsRefresh()) {
-			uint8_t * addr = (uint8_t *) (getWorkingPageAddr() + offset);
 			onCalibrationWrite(page, offset, count);
 			memcpy(addr, content, count);
 		} else {
@@ -274,57 +317,30 @@ void TunerStudio::handleWriteChunkCommand(TsChannelBase* tsChannel, uint16_t pag
 
 		// we don't care about writes to scatter page
 		calibrationsWriteTimer.reset();
-#if EFI_TS_SCATTER
-	} else if (page == TS_PAGE_SCATTER_OFFSETS) {
-		// Ensure we are writing in bounds
-		if (offset + count > sizeof(tsChannel->highSpeedOffsets)) {
-			tunerStudioError(tsChannel, "ERROR: WR out of range");
-			sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
-			return;
-		}
-
-		uint8_t* addr = (uint8_t *)tsChannel->highSpeedOffsets + offset;
-		memcpy(addr, content, count);
-#endif
 	} else {
-		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE, "ERROR: WR invalid page");
-		return;
+		memcpy(addr, content, count);
 	}
 
 	sendOkResponse(tsChannel);
 }
 
 void TunerStudio::handleCrc32Check(TsChannelBase *tsChannel, uint16_t page, uint16_t offset, uint16_t count) {
-	uint32_t crc = 0;
-	const uint8_t* start = nullptr;
 	tsState.crc32CheckCommandCounter++;
 
-	if (page == TS_PAGE_SETTINGS) {
-		// Ensure we are reading from in bounds
-		if (validateOffsetCount(offset, count, tsChannel)) {
-			tunerStudioError(tsChannel, "ERROR: CRC out of range");
-			sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
-			return;
-		}
+	// Ensure we are reading from in bounds
+	if (validateOffsetCount(page, offset, count, tsChannel)) {
+		tunerStudioError(tsChannel, "ERROR: CRC out of range");
+		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
+		return;
+	}
 
-		start = getWorkingPageAddr() + offset;
-#if EFI_TS_SCATTER
-	} else if (page == TS_PAGE_SCATTER_OFFSETS) {
-		// Ensure we are reading from in bounds
-		if (offset + count > sizeof(tsChannel->highSpeedOffsets)) {
-			tunerStudioError(tsChannel, "ERROR: CRC out of range");
-			sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
-			return;
-		}
-
-		start = (uint8_t *)tsChannel->highSpeedOffsets + offset;
-#endif
-	} else {
+	const uint8_t* start = getWorkingPageAddr(tsChannel, page, offset);
+	if (start == nullptr) {
 		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE, "ERROR: CRC invalid page");
 		return;
 	}
 
-	crc = SWAP_UINT32(crc32(start, count));
+	uint32_t crc = SWAP_UINT32(crc32(start, count));
 	tsChannel->sendResponse(TS_CRC, (const uint8_t *) &crc, 4);
 	efiPrintf("TS <- Get CRC page %d offset %d count %d result %08x", page, offset, count, (unsigned int)crc);
 }
@@ -335,7 +351,7 @@ void TunerStudio::handleScatteredReadCommand(TsChannelBase* tsChannel) {
 
 	int totalResponseSize = 0;
 	for (size_t i = 0; i < TS_SCATTER_OFFSETS_COUNT; i++) {
-		uint16_t packed = tsChannel->highSpeedOffsets[i];
+		uint16_t packed = tsChannel->page1.highSpeedOffsets[i];
 		uint16_t type = packed >> 13;
 
 		size_t size = type == 0 ? 0 : 1 << (type - 1);
@@ -353,7 +369,7 @@ void TunerStudio::handleScatteredReadCommand(TsChannelBase* tsChannel) {
 
 	uint8_t dataBuffer[8];
 	for (size_t i = 0; i < TS_SCATTER_OFFSETS_COUNT; i++) {
-		uint16_t packed = tsChannel->highSpeedOffsets[i];
+		uint16_t packed = tsChannel->page1.highSpeedOffsets[i];
 		uint16_t type = packed >> 13;
 		uint16_t offset = packed & 0x1FFF;
 
@@ -380,43 +396,30 @@ void TunerStudio::handlePageReadCommand(TsChannelBase* tsChannel, uint16_t page,
 	tsState.readPageCommandsCounter++;
 	efiPrintf("TS <- Page %d read chunk offset %d count %d", page, offset, count);
 
-	uint8_t* addr = nullptr;
+	if (validateOffsetCount(page, offset, count, tsChannel)) {
+		tunerStudioError(tsChannel, "ERROR: RD out of range");
+		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
+		return;
+	}
 
+	uint8_t* addr = getWorkingPageAddr(tsChannel, page, offset);
 	if (page == TS_PAGE_SETTINGS) {
-		if (validateOffsetCount(offset, count, tsChannel)) {
-			tunerStudioError(tsChannel, "ERROR: RD out of range");
-			sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
-			return;
-		}
-
 		if (isLockedFromUser()) {
 			// to have rusEFI console happy just send all zeros within a valid packet
 			addr = (uint8_t*)&tsChannel->scratchBuffer + TS_PACKET_HEADER_SIZE;
 			memset(addr, 0, count);
-		} else {
-			addr = getWorkingPageAddr() + offset;
 		}
-#if EFI_TS_SCATTER
-	} else if (page == TS_PAGE_SCATTER_OFFSETS) {
-		// Ensure we are reading from in bounds
-		if (offset + count > sizeof(tsChannel->highSpeedOffsets)) {
-			tunerStudioError(tsChannel, "ERROR: RD out of range");
-			sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE);
-			return;
-		}
-
-		addr = (uint8_t *)tsChannel->highSpeedOffsets + offset;
-#endif
 	}
 
-	if (addr) {
-		tsChannel->sendResponse(TS_CRC, addr, count);
-#if EFI_TUNER_STUDIO_VERBOSE
-//		efiPrintf("Sending %d done", count);
-#endif
-	} else {
+	if (addr == nullptr) {
 		sendErrorCode(tsChannel, TS_RESPONSE_OUT_OF_RANGE, "ERROR: RD invalid page");
+		return;
 	}
+
+	tsChannel->sendResponse(TS_CRC, addr, count);
+#if EFI_TUNER_STUDIO_VERBOSE
+//	efiPrintf("Sending %d done", count);
+#endif
 }
 #endif // EFI_TUNER_STUDIO
 

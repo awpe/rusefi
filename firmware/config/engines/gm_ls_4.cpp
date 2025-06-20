@@ -8,8 +8,41 @@
 #include <rusefi/arrays.h>
 #include "proteus_meta.h"
 
+#ifdef HW_HELLEN
+#include "hellen_meta.h"
+#endif // HW_HELLEN
+
 void setGmLs4() {
+	strcpy(engineConfiguration->engineMake, ENGINE_MAKE_GM);
+	strcpy(engineConfiguration->engineCode, "gen4");
 	engineConfiguration->globalTriggerAngleOffset = 86;
+
+#if HW_PROTEUS
+	engineConfiguration->etbFunctions[1] = DC_None;
+
+	setPPSInputs(PROTEUS_IN_ANALOG_VOLT_2, PROTEUS_IN_ANALOG_VOLT_11);
+	setTPS1Inputs(PROTEUS_IN_ANALOG_VOLT_4, PROTEUS_IN_ANALOG_VOLT_3);
+
+// todo: tps
+#endif //HW_PROTEUS
+
+#if defined(HW_HELLEN_8CHAN)
+	engineConfiguration->injectionPins[4] = Gpio::MM176_INJ5;
+	engineConfiguration->injectionPins[5] = Gpio::MM176_INJ6;
+	engineConfiguration->injectionPins[6] = Gpio::MM176_INJ7;
+	engineConfiguration->injectionPins[7] = Gpio::MM176_INJ8;
+	engineConfiguration->ignitionPins[4] = Gpio::MM176_IGN5;
+	engineConfiguration->ignitionPins[5] = Gpio::MM176_IGN6;
+	engineConfiguration->ignitionPins[6] = Gpio::MM176_IGN7;
+	engineConfiguration->ignitionPins[7] = Gpio::MM176_IGN8;
+
+  engineConfiguration->vvtPins[0] = Gpio::MM176_OUT_PWM1; // 8D - VVT 1
+  engineConfiguration->map.sensor.hwChannel = MM176_IN_CRANK_ANALOG;
+  engineConfiguration->triggerInputPins[0] = Gpio::MM176_IN_D4; // 9A
+  engineConfiguration->camInputs[1] = Gpio::Unassigned;
+  engineConfiguration->camInputs[2] = Gpio::Unassigned;
+  engineConfiguration->camInputs[3] = Gpio::Unassigned;
+#endif
 
 	engineConfiguration->fuelReferencePressure = 400; // 400 kPa, 58 psi
 	engineConfiguration->injectorCompensationMode = ICM_FixedRailPressure;
@@ -132,16 +165,4 @@ end
 
 	setPPSCalibration(0.51, 2.11, 1.01, 4.23);
 	setTPS1Calibration(880, 129, 118, 870);
-}
-
-void setProteusGmLs4() {
-#if HW_PROTEUS
-	engineConfiguration->etbFunctions[1] = DC_None;
-
-	setPPSInputs(PROTEUS_IN_ANALOG_VOLT_2, PROTEUS_IN_ANALOG_VOLT_11);
-	setTPS1Inputs(PROTEUS_IN_ANALOG_VOLT_4, PROTEUS_IN_ANALOG_VOLT_3);
-
-// todo: tps
-#endif //HW_PROTEUS
-	setGmLs4();
 }

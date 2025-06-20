@@ -100,9 +100,7 @@ void boardOnConfigurationChange(engine_configuration_s * /*previousConfiguration
 void setBoardConfigOverrides() {
 	hellenMegaModule();
 	setHellenCan();
-
-	engineConfiguration->can2RxPin = Gpio::B12;
-	engineConfiguration->can2TxPin = Gpio::B13;
+	setHellenCan2();
 }
 
 /**
@@ -150,6 +148,22 @@ void boardPrepareForStop() {
 	// Wake on the CAN RX pin
 	palEnableLineEvent(PAL_LINE(GPIOD, 0), PAL_EVENT_MODE_RISING_EDGE);
 }
+
+static Gpio OUTPUTS_GM_GEN4[] = {
+	Gpio::MM176_INJ1, // 1D - Injector 1
+	Gpio::MM176_INJ2, // 2D - Injector 2
+	Gpio::MM176_INJ3, // 3D - Injector 3
+	Gpio::MM176_INJ4, // 4D - Injector 4
+
+	Gpio::MM176_INJ5, // 5D - Injector 5
+	Gpio::MM176_INJ6, // 6D - Injector 6
+	Gpio::MM176_INJ7, // 7D - Injector 7
+	Gpio::MM176_INJ8, // 13D - Injector 8
+
+  Gpio::MM176_GP1, // 11D - Main Relay
+	Gpio::MM176_GP2, // 10D - Fan
+//	Gpio::MM176_OUT_PWM1, // 8D - VVT 1
+};
 
 static Gpio OUTPUTS[] = {
 	Gpio::MM176_INJ1, // 1D - Injector 1
@@ -210,17 +224,30 @@ static Gpio OUTPUTS[] = {
 };
 
 int getBoardMetaOutputsCount() {
+    if (engineConfiguration->engineType == engine_type_e::GM_SBC_GEN4) {
+        return efi::size(OUTPUTS_GM_GEN4);
+    }
     return efi::size(OUTPUTS);
 }
 
 int getBoardMetaLowSideOutputsCount() {
+    if (engineConfiguration->engineType == engine_type_e::GM_SBC_GEN4) {
+      return getBoardMetaOutputsCount();
+    }
     return getBoardMetaOutputsCount() - 6;
 }
 
 Gpio* getBoardMetaOutputs() {
+    if (engineConfiguration->engineType == engine_type_e::GM_SBC_GEN4) {
+      return OUTPUTS_GM_GEN4;
+    }
     return OUTPUTS;
 }
 
 int getBoardMetaDcOutputsCount() {
+    if (engineConfiguration->engineType == engine_type_e::GM_SBC_GEN4) {
+      // STATIC_BOARD_ID_PLATINUM_GM_GEN4
+        return 1;
+    }
     return 2;
 }

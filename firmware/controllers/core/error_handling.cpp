@@ -11,6 +11,8 @@
 #include "log_hard_fault.h"
 #include "rusefi/critical_error.h"
 
+using namespace rusefi::stringutil;
+
 /**
  * Executes the BKPT instruction that causes the debugger to stop.
  */

@@ -29,6 +29,12 @@ Release template (copy/paste this for new release):
 ## Unreleased
 
 ### Added
+ - OilTempGauge
+ - explicit LUA_USER_HEAP is now optional
+
+## June 2025 "Day 1210"
+
+### Added
  - SD card mode selection: do not wait for USB if vbatt voltage #7424
  - SD card mass storage read access performance improvements
  - migrate injector lag is now a table #7522

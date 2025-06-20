@@ -13,8 +13,8 @@
 #include "efi_pid.h"
 #include "sensor.h"
 #include "idle_state_generated.h"
+#include "closed_loop_idle.h"
 #include "biquad.h"
-
 
 struct IIdleController {
 	enum class Phase : uint8_t {
@@ -48,13 +48,14 @@ struct IIdleController {
 	virtual float getClosedLoop(Phase phase, float tps, float rpm, float target) = 0;
 	virtual float getCrankingTaperFraction(float clt) const = 0;
 	virtual bool isIdlingOrTaper() const = 0;
+	virtual bool isCoastingAdvance() const = 0;
 	virtual float getIdleTimingAdjustment(float rpm) = 0;
 };
 
 class IdleController : public IIdleController, public EngineModule, public idle_state_s {
 public:
 	// Mockable<> interface
-	using interface_t = IIdleController;
+	using interface_t = IdleController;
 
 	void init();
 
@@ -86,6 +87,14 @@ public:
 		return m_lastPhase == Phase::Idling || (engineConfiguration->useSeparateIdleTablesForCrankingTaper && m_lastPhase == Phase::CrankToIdleTaper);
 	}
 
+	bool isCoastingAdvance() const override {
+		return m_lastPhase == Phase::Coasting && engineConfiguration->useIdleAdvanceWhileCoasting;
+	}
+
+	Phase getCurrentPhase() const {
+		return m_lastPhase;
+	}
+
 	PidIndustrial industrialWithOverrideIdlePid;
 
 	#if EFI_IDLE_PID_CIC
@@ -102,6 +111,8 @@ public:
 		return &industrialWithOverrideIdlePid;
 	}
 
+  void updateLtit(float rpm, float clt, bool acActive, bool fan1Active, bool fan2Active, float idleIntegral);
+  void onIgnitionStateChanged(bool ignitionOn) override;
 
 private:
 

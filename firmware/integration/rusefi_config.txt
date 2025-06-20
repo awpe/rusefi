@@ -64,6 +64,9 @@
 !
 ! Q: what's the difference between 'engineConfiguration' and rest of the 'persistent_config_s'?
 ! A: 'engineConfiguration' portion has 'activeConfiguration' copy so that we can detect changes
+! A number of systems like IO and trigger do not like to be re-initialized while engine is running, these are great candidates
+! for engineConfiguration
+! on the other hand VE table changes are much easier to make on the fly with engine running
 ! todo: move all curves and tables out of engineConfiguration that would make 'activeConfiguration' smaller and we might save a couple of K of ram
 !
 !
@@ -226,8 +229,6 @@ struct_no_prefix engine_configuration_s
 
 #define VEHICLE_INFO_SIZE 32
 
-#define VE_RPM_COUNT 16
-#define VE_LOAD_COUNT 16
 #define FUEL_RPM_COUNT 16
 #define FUEL_LOAD_COUNT 16
 
@@ -236,6 +237,8 @@ struct_no_prefix engine_configuration_s
 #define PEDAL_TO_TPS_SIZE 8
 #define FUEL_LEVEL_TABLE_COUNT 8
 
+! Short and Long term fuel corrections
+! LTFT use same table size as VE: VE_LOAD_COUNT x VE_RPM_COUNT
 #define ts_show_long_term_fuel_trim false
 
 #define STFT_CELL_COUNT 4
@@ -278,6 +281,7 @@ struct_no_prefix engine_configuration_s
 #define GPPWM_CHANNELS 4
 #define GPPWM_NOTE_SIZE 16
 
+#define CAN_WBO_COUNT 2
 
 struct stft_cell_cfg_s
 	uint8_t autoscale maxAdd;Maximum % that the short term fuel trim can add;"%", 0.1, 0, 0, 25, 1
@@ -297,6 +301,15 @@ struct stft_s
 	uint8_t startupDelay;Delay after starting the engine before beginning closed loop correction.;"seconds", 1, 0, 0, 250, 0
 
 	stft_cell_cfg_s[STFT_CELL_COUNT iterate] cellCfgs;
+end_struct
+
+struct ltft_s
+	bit enabled;Enables lambda sensor long term fuel corrections learning
+	bit correctionEnabled;Enables applying long term fuel corrections
+	uint8_t autoscale deadband;When close to correct AFR, pause correction. This can improve stability by not changing the adjustment if the error is extremely small, but is not required.;"%", 0.1, 0, 0, 3, 1
+	uint8_t autoscale maxAdd;Maximum % that the long term fuel trim can add;"%", 0.1, 0, 0, 25, 1
+	uint8_t autoscale maxRemove;Maximum % that the long term fuel trim can remove;"%", 0.1, 0, 0, 25, 1
+	uint16_t autoscale timeConstant;Commonly referred as Integral gain.\nTime constant for correction while in this cell: this sets responsiveness of the closed loop correction. A value of 30.0 means it will try to make most of the correction within 30 seconds, and a value of 300.0 will try to correct within 5 minutes.\nLower values makes the correction more sensitive, higher values slow the correction down.;"sec", 1, 0, 30, 3000, 0
 end_struct
 
 struct pid_s
@@ -347,6 +360,8 @@ custom debug_mode_e 1 bits, U08, @OFFSET@, [0:5], @@debug_mode_e_enum@@
 
 #define VVT_25_NAME "INVALID"
 #define VVT_26_NAME "INVALID"
+
+#define canReWidebandHwIndex_enum "Idx 0", "Idx 1", "Idx 2", "Idx 3", "Idx 4", "Idx 5", "Idx 6", "Idx 7", "Broadcast", "INVALID", "INVALID", "INVALID", "INVALID", "INVALID", "INVALID", "INVALID"
 
 !                                                                                                                                                                                                                                                                                                    17 unused  18                 19             20            21           22         23                                                                          28
 #define vvt_mode_e_enum "Inactive", "Single Tooth", "Toyota 3 Tooth Even/2JZ", "Miata NB2", "Mitsu 4G69", "Bosch Quick Start", "4/1", "ST 170", "Ford Barra 3+1", "Nissan VQ", "Honda K Intake", "Nissan MR18", "Mitsu 3A92", "Sync by MAP", "Chrysler Phaser", "Mazda Skyactiv", "Honda K Exhaust", "INVALID", "Mitsubishi 4G63", "Ford Coyote", "Mitsu 6G72", "Honda 600", "Mazda L", "Dev", "HR12DDR In", @@VVT_25_NAME@@, @@VVT_26_NAME@@, "Toyota 3 Tooth UZ", "vvt28"
@@ -480,6 +495,18 @@ uint16_t engineSnifferRpmThreshold;Engine sniffer would be disabled above this r
 	uint16_t idlePositionMin;Voltage when the idle valve is closed.\nYou probably don't have one of these!;"mv", 1, 0, 0, 5000, 0
 	uint16_t idlePositionMax;Voltage when the idle valve is open.\nYou probably don't have one of these!\n1 volt = 1000 units;"mv", 1, 0, 0, 5000, 0
 
+	bit ltitEnabled;Enable LTIT (Long Term Idle Trim) learning
+	uint8_t ltitEmaAlpha;EMA filter constant for LTIT (0-255);"0-255",1,0,1,255,0
+	uint8_t ltitStableRpmThreshold;RPM range to consider stable idle;"rpm",1,0,1,100,0
+	uint8_t ltitStableTime;Minimum time of stable idle before learning;"s",1,0,1,30,0
+	uint8_t ltitCorrectionRate;LTIT learning rate;"%/s",1,0,1,100,0
+	uint8_t ltitIgnitionOnDelay;Delay after ignition ON before LTIT learning/application;"s",1,0,1,60,0
+	uint8_t ltitIgnitionOffSaveDelay;Delay after ignition OFF before LTIT save;"s",1,0,1,60,0
+	float ltitClampMin;Minimum LTIT multiplicative correction value;"%", 1, 0, 0, 100, 1
+	float ltitClampMax;Maximum LTIT multiplicative correction value;"%", 1, 0, 100, 300, 1
+	uint8_t autoscale ltitSmoothingIntensity;LTIT table regional smoothing intensity (0=no smoothing);"ratio", 0.01, 0, 0, 2.5, 2
+	float ltitIntegratorThreshold;Minimum threshold of PID integrator for LTIT correction;"%", 1, 0, 0, 25, 0
+
 	! [tag:coding_by_convention]
 	output_pin_e mainRelayPin;
 	Gpio sdCardCsPin;
@@ -542,6 +569,7 @@ bit allowIdenticalPps
 bit overrideVvtTriggerGaps
 bit useSpiImu;If enabled - use onboard SPI Accelerometer, otherwise listen for CAN messages
 bit enableStagedInjection
+bit useIdleAdvanceWhileCoasting
 
 int16_t tpsMin;Closed throttle, 1 volt = 200 units.\nSee also tps1_1AdcChannel;"ADC", 1, 0, 0, 1023, 0
 int16_t tpsMax;Full throttle.\nSee also tps1_1AdcChannel;"ADC", 1, 0, 0, 1023, 0
@@ -853,7 +881,7 @@ spi_device_e digitalPotentiometerSpiDevice;Digital Potentiometer is used by stoc
 	bit verboseTLE8888
 	bit enableVerboseCanTx;CAN broadcast using custom rusEFI protocol
 	bit externalRusEfiGdiModule
-	bit flipWboChannels
+	bit unusedFlipWboChannels
 	bit measureMapOnlyInOneCylinder;Useful for individual intakes
 
 	! bit 16
@@ -1039,6 +1067,7 @@ bit verboseCan2,"Print all","Do not print";Print incoming and outgoing second bu
 
 	uint8_t autoscale tpsAccelLookback;How long to look back for TPS-based acceleration enrichment. Increasing this time will trigger enrichment for longer when a throttle position change occurs.;"sec", 0.05, 0, 0, 5, 2
 	uint8_t autoscale noFuelTrimAfterDfcoTime;Pause closed loop fueling after deceleration fuel cut occurs. Set this to a little longer than however long is required for normal fueling behavior to resume after fuel cut.;"sec", 0.1, 0, 0, 10, 1
+	uint8_t autoscale noFuelTrimAfterAccelTime;Pause closed loop fueling after acceleration fuel occurs. Set this to a little longer than however long is required for normal fueling behavior to resume after fuel accel.;"sec", 0.1, 0, 0, 10, 1
 
     int launchSpeedThreshold;Launch disabled above this speed if setting is above zero;"Kph", 1, 0, 0, 300, 0
     int launchRpmWindow;Starting Launch RPM window to activate (subtracts from Launch RPM);"RPM", 1, 0, 0, 8000, 0
@@ -1050,6 +1079,7 @@ bit verboseCan2,"Print all","Do not print";Print incoming and outgoing second bu
 	float launchActivateDelay;;"", 1, 0, 0, 20000, 0
 
 	stft_s stft
+	ltft_s ltft
 
 	dc_io[DC_PER_STEPPER iterate] stepperDcIo
 
@@ -1658,6 +1688,7 @@ pin_input_mode_e[LUA_DIGITAL_INPUT_COUNT iterate] luaDigitalInputPinModes;
 uint8_t[CAM_INPUTS_COUNT iterate] simulatorCamPosition;
 
 adc_channel_e ignKeyAdcChannel
+float ignKeyAdcDivider
 
 	pin_mode_e spi6MisoMode;
 
@@ -1839,8 +1870,16 @@ uint8_t autoscale knockFuelTrim;Fuel trim when knock, max 30%;"%", 1, 0, 0, 30, 
 
 	#define can_wbo_type_e_enum "RusEFI", "AEM X-series", "Disabled/Analog"
 	custom can_wbo_type_e 1 bits, U08, @OFFSET@, [0:1], @@can_wbo_type_e_enum@@
-	can_wbo_type_e wboType1;
-	can_wbo_type_e wboType2;
+	custom can_wbo_re_id_e 1 bits, U08, @OFFSET@, [0:3], $can_wbo_re_id_list
+	custom can_wbo_aem_id_e 1 bits, U08, @OFFSET@, [0:3], $can_wbo_aem_id_list
+
+struct wbo_s
+	can_wbo_type_e type;
+	can_wbo_re_id_e reId;
+	can_wbo_aem_id_e aemId;
+end_struct
+
+	wbo_s[CAN_WBO_COUNT iterate] canWbo;
 
 ! historically 'unusedOftenChangesDuringFirmwareUpdate' was here - now that's just an anchor reminding where to insert new fields
 
@@ -1970,6 +2009,8 @@ float[IAT_CURVE_SIZE] iatFuelCorr;;"ratio", 1, 0, 0, 5, 2
 float[CLT_IDLE_TABLE_CLT_SIZE] cltIdleCorrBins;CLT-based idle position for simple manual idle controller;"C", 1, 0, -100, @@CLT_UPPER_LIMIT@@, 2
 float[CLT_IDLE_TABLE_RPM_SIZE x CLT_IDLE_TABLE_CLT_SIZE] cltIdleCorrTable;    CLT-based idle position for simple manual idle controller;"%", 1, 0, 0, 100, 2
 uint8_t[CLT_IDLE_TABLE_RPM_SIZE] autoscale rpmIdleCorrBins;;"RPM", @@RPM_AS_BYTE_SCALE@@, 0, 0, @@RPM_AS_BYTE_LIMIT@@, 0
+
+uint16_t[CLT_IDLE_TABLE_CLT_SIZE] autoscale ltitTable;Long Term Idle Trim (LTIT) multiplicativo para idle open loop;"%", 0.1, 0, 50, 150, 1
 
 float[MAF_DECODING_COUNT] mafDecoding;Also known as MAF transfer function.\nkg/hour value.\nBy the way 2.081989116 kg/h = 1 ft3/m;"kg/hour", 1, 0, -500, 4000, 2
 float[MAF_DECODING_COUNT] mafDecodingBins;;"V", 1, 0, -5, 150, 2
@@ -2254,11 +2295,6 @@ uint8_t[8] autoscale minimumOilPressureBins;;"RPM", @@RPM_AS_BYTE_SCALE@@, 0, 0,
 uint8_t[8] autoscale minimumOilPressureValues;;"kPa", 10, 0, 0, 1000, 0
 
 blend_table_s[TARGET_AFR_BLEND_COUNT iterate] targetAfrBlends
-
-! ltft
-uint8_t[VE_RPM_COUNT] autoscale trimRpmBins;;"RPM", @@RPM_AS_BYTE_SCALE@@, 0, 0, @@RPM_AS_BYTE_LIMIT@@, 0
-uint16_t[VE_LOAD_COUNT] trimLoadBins;;"", 1, 0, 0, @@MAP_UPPER_LIMIT@@, 0
-
 
 #define DYNO_RPM_STEP_UNITS "Rpm"
 #define DYNO_RPM_STEP_TOOLTIP "RPM Trim Window, Leave on 100 if you dont know what this does"

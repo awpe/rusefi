@@ -1,5 +1,5 @@
 //
-// was generated automatically by rusEFI tool config_definition-all.jar based on gen_config.sh integration/rusefi_config.txt
+// CHeaderConsumer was generated automatically by rusEFI tool config_definition-all.jar based on gen_config.sh integration/rusefi_config.txt
 //
 
 #define adc_channel_e_auto_enum 0="EFI_ADC_NONE",1="EFI_ADC_0",2="EFI_ADC_1",11="EFI_ADC_10",12="EFI_ADC_11",13="EFI_ADC_12",14="EFI_ADC_13",15="EFI_ADC_14",16="EFI_ADC_15",17="EFI_ADC_16",18="EFI_ADC_17",19="EFI_ADC_18",20="EFI_ADC_19",3="EFI_ADC_2",21="EFI_ADC_20",22="EFI_ADC_21",23="EFI_ADC_22",24="EFI_ADC_23",25="EFI_ADC_24",26="EFI_ADC_25",27="EFI_ADC_26",28="EFI_ADC_27",29="EFI_ADC_28",30="EFI_ADC_29",4="EFI_ADC_3",31="EFI_ADC_30",32="EFI_ADC_31",33="EFI_ADC_32",34="EFI_ADC_33",35="EFI_ADC_34",36="EFI_ADC_35",37="EFI_ADC_36",38="EFI_ADC_37",39="EFI_ADC_38",40="EFI_ADC_39",5="EFI_ADC_4",41="EFI_ADC_40",42="EFI_ADC_41",43="EFI_ADC_42",44="EFI_ADC_43",45="EFI_ADC_44",46="EFI_ADC_45",47="EFI_ADC_46",48="EFI_ADC_47",6="EFI_ADC_5",7="EFI_ADC_6",8="EFI_ADC_7",9="EFI_ADC_8",10="EFI_ADC_9",50="EFI_ADC_ERROR",49="EFI_ADC_TOTAL_CHANNELS"
@@ -212,6 +212,41 @@
 #define can_vss_nbc_e_HYUNDAI_PB 4
 #define can_vss_nbc_e_NISSAN_350 3
 #define can_vss_nbc_e_W202 1
+#define can_wbo_aem_id_e_auto_enum 0="WBO_AEM_ID1",9="WBO_AEM_ID10",10="WBO_AEM_ID11",11="WBO_AEM_ID12",12="WBO_AEM_ID13",13="WBO_AEM_ID14",14="WBO_AEM_ID15",15="WBO_AEM_ID16",1="WBO_AEM_ID2",2="WBO_AEM_ID3",3="WBO_AEM_ID4",4="WBO_AEM_ID5",5="WBO_AEM_ID6",6="WBO_AEM_ID7",7="WBO_AEM_ID8",8="WBO_AEM_ID9"
+#define can_wbo_aem_id_e_WBO_AEM_ID1 0
+#define can_wbo_aem_id_e_WBO_AEM_ID10 9
+#define can_wbo_aem_id_e_WBO_AEM_ID11 10
+#define can_wbo_aem_id_e_WBO_AEM_ID12 11
+#define can_wbo_aem_id_e_WBO_AEM_ID13 12
+#define can_wbo_aem_id_e_WBO_AEM_ID14 13
+#define can_wbo_aem_id_e_WBO_AEM_ID15 14
+#define can_wbo_aem_id_e_WBO_AEM_ID16 15
+#define can_wbo_aem_id_e_WBO_AEM_ID2 1
+#define can_wbo_aem_id_e_WBO_AEM_ID3 2
+#define can_wbo_aem_id_e_WBO_AEM_ID4 3
+#define can_wbo_aem_id_e_WBO_AEM_ID5 4
+#define can_wbo_aem_id_e_WBO_AEM_ID6 5
+#define can_wbo_aem_id_e_WBO_AEM_ID7 6
+#define can_wbo_aem_id_e_WBO_AEM_ID8 7
+#define can_wbo_aem_id_e_WBO_AEM_ID9 8
+#define CAN_WBO_COUNT 2
+#define can_wbo_re_id_e_auto_enum 0="WBO_RE_ID1",9="WBO_RE_ID10",10="WBO_RE_ID11",11="WBO_RE_ID12",12="WBO_RE_ID13",13="WBO_RE_ID14",14="WBO_RE_ID15",15="WBO_RE_ID16",1="WBO_RE_ID2",2="WBO_RE_ID3",3="WBO_RE_ID4",4="WBO_RE_ID5",5="WBO_RE_ID6",6="WBO_RE_ID7",7="WBO_RE_ID8",8="WBO_RE_ID9"
+#define can_wbo_re_id_e_WBO_RE_ID1 0
+#define can_wbo_re_id_e_WBO_RE_ID10 9
+#define can_wbo_re_id_e_WBO_RE_ID11 10
+#define can_wbo_re_id_e_WBO_RE_ID12 11
+#define can_wbo_re_id_e_WBO_RE_ID13 12
+#define can_wbo_re_id_e_WBO_RE_ID14 13
+#define can_wbo_re_id_e_WBO_RE_ID15 14
+#define can_wbo_re_id_e_WBO_RE_ID16 15
+#define can_wbo_re_id_e_WBO_RE_ID2 1
+#define can_wbo_re_id_e_WBO_RE_ID3 2
+#define can_wbo_re_id_e_WBO_RE_ID4 3
+#define can_wbo_re_id_e_WBO_RE_ID5 4
+#define can_wbo_re_id_e_WBO_RE_ID6 5
+#define can_wbo_re_id_e_WBO_RE_ID7 6
+#define can_wbo_re_id_e_WBO_RE_ID8 7
+#define can_wbo_re_id_e_WBO_RE_ID9 8
 #define can_wbo_re_status_e_WBO_RE_BUSY 2
 #define can_wbo_re_status_e_WBO_RE_DONE 1
 #define can_wbo_re_status_e_WBO_RE_FAILED 3
@@ -226,6 +261,7 @@
 #define CanGpioType_enum "None", "DRT protocol", "MS protocol"
 #define CanGpioType_MS 2
 #define CanGpioType_NONE 0
+#define canReWidebandHwIndex_enum "Idx 0", "Idx 1", "Idx 2", "Idx 3", "Idx 4", "Idx 5", "Idx 6", "Idx 7", "Broadcast", "INVALID", "INVALID", "INVALID", "INVALID", "INVALID", "INVALID", "INVALID"
 #define CLT_CRANKING_CURVE_SIZE 8
 #define CLT_CRANKING_TAPER_CURVE_SIZE 6
 #define CLT_CURVE_SIZE 16
@@ -411,7 +447,7 @@
 #define ego_sensor_e_ES_PLX 4
 #define egoSettings_NAME "CAN O2 sensors"
 #define EGT_CHANNEL_COUNT 8
-#define engine_configuration_s_size 3864
+#define engine_configuration_s_size 3920
 #define engine_load_mode_e_auto_enum 0="LM_SPEED_DENSITY",2="LM_ALPHA_N",3="LM_LUA",100="LM_MOCK",1="LM_REAL_MAF"
 #define engine_load_mode_e_enum "Speed Density", "MAF Air Charge", "Alpha-N", "Lua"
 #define engine_load_mode_e_LM_ALPHA_N 2
@@ -433,7 +469,7 @@
 #define ENGINE_MAKE_VAG "VAG"
 #define ENGINE_NOISE_CURVE_SIZE 16
 #define ENGINE_SNIFFER_UNIT_US 10
-#define engine_type_e_auto_enum 0="DEFAULT_FRANKENSO",22="BMW_M52",50="BMW_M73_MRE",51="BMW_M73_MRE_SLAVE",38="DISCOVERY_PDM",2="DODGE_NEON_1995",46="DODGE_NEON_2003_CRANK",64="DODGE_RAM",61="EEPROM_BENCH_ENGINE",58="ETB_BENCH_ENGINE",21="ET_BOSCH_QUICK_START",24="ET_TEST_WITH_BOSCH_QUICK_START",3="FORD_ASPIRE_1996",11="FORD_COYOTE",67="FORD_ECOBOOST",14="FORD_ESCORT_GT",7="FORD_INLINE_6_1995",40="FRANKENSO_BMW_M73_F",41="FRANKENSO_MIATA_NA6_MAP",59="FRANKENSO_TEST_33810",15="FUEL_BENCH",47="GM_LCV",65="GM_LNF",55="GM_LTG",98="GM_SBC",49="GM_SBC_GEN5",8="GY6_139QMB",6="HARLEY",84="HELLEN_121_NISSAN_4_CYL",72="HELLEN_121_NISSAN_6_CYL",85="HELLEN_121_NISSAN_8_CYL",87="HELLEN_121_NISSAN_ALMERA_N16",71="HELLEN_121_VAG_4_CYL",81="HELLEN_121_VAG_8_CYL",78="HELLEN_121_VAG_V6_CYL",79="HELLEN_121_VAG_VR6_CYL",36="HELLEN_128_MERCEDES_4_CYL",88="HELLEN_128_MERCEDES_6_CYL",89="HELLEN_128_MERCEDES_8_CYL",82="HELLEN_154_HYUNDAI_COUPE_BK1",95="HELLEN_154_HYUNDAI_COUPE_BK2",76="HELLEN_154_VAG",75="HELLEN_2CHAN_STIM_QC",74="HELLEN_4CHAN_STIM_QC",57="HELLEN_HONDA_BCM",43="HONDA_600",90="HONDA_K",66="HONDA_OBD1",91="HONDA_OBD2A",104="HYUNDAI_PB",60="L9779_BENCH_ENGINE",54="MAVERICK_X3",34="MAZDA_MIATA_NA6",80="MAZDA_MIATA_NA94",10="MAZDA_MIATA_NA96",83="MAZDA_MIATA_NB1",69="MAZDA_MIATA_NB2",86="MAZDA_MIATA_NB2_36",20="MAZDA_MIATA_NC",33="ME17_9_MISC",68="MERCEDES_M111",1="MIATA_PROTEUS_TCU",99="MINIMAL_PINS",12="MITSUBISHI_3A92",16="MITSUBISHI_4G93",23="MRE_BODY_CONTROL",4="MRE_SECONDARY_CAN",37="MRE_SUBARU_EJ18",62="MRE_VW_B6",5="NISSAN_PRIMERA",35="POLARIS",9="POLARIS_RZR",30="PROTEUS_ANALOG_PWM_TEST",63="PROTEUS_BMW_M73",27="PROTEUS_GM_LS_4",25="PROTEUS_LUA_DEMO",103="PROTEUS_NISSAN_VQ35",73="PROTEUS_STIM_QC",39="PROTEUS_VW_B6",29="SACHS",92="SIMULATOR_CONFIG",56="SUBARU_2011",70="SUBARU_EG33",17="TCU_4R70W",100="TEST_100",101="TEST_101",18="TEST_33816",28="TEST_CRANK_ENGINE",48="TEST_DC_WASTEGATE_DISCOVERY",26="TEST_ENGINE",45="TEST_ENGINE_VVT",52="TEST_ISSUE_366_BOTH",53="TEST_ISSUE_366_RISE",93="TEST_ISSUE_6451",19="TEST_ROTARY",13="TOYOTA_1NZ_FE",44="TOYOTA_2JZ_GTE_VVTi",102="UNUSED102",31="UNUSED31",42="UNUSED42",94="UNUSED94",105="UNUSED_105",97="UNUSED_97",77="VAG_5_CYL",32="VW_ABA",96="WASTEGATE_PROTEUS_TEST"
+#define engine_type_e_auto_enum 0="DEFAULT_FRANKENSO",22="BMW_M52",50="BMW_M73_MRE",51="BMW_M73_MRE_SLAVE",38="DISCOVERY_PDM",2="DODGE_NEON_1995",46="DODGE_NEON_2003_CRANK",64="DODGE_RAM",61="EEPROM_BENCH_ENGINE",58="ETB_BENCH_ENGINE",21="ET_BOSCH_QUICK_START",24="ET_TEST_WITH_BOSCH_QUICK_START",3="FORD_ASPIRE_1996",11="FORD_COYOTE",67="FORD_ECOBOOST",14="FORD_ESCORT_GT",7="FORD_INLINE_6_1995",40="FRANKENSO_BMW_M73_F",41="FRANKENSO_MIATA_NA6_MAP",59="FRANKENSO_TEST_33810",15="FUEL_BENCH",47="GM_LCV",65="GM_LNF",55="GM_LTG",98="GM_SBC",27="GM_SBC_GEN4",49="GM_SBC_GEN5",8="GY6_139QMB",6="HARLEY",84="HELLEN_121_NISSAN_4_CYL",72="HELLEN_121_NISSAN_6_CYL",85="HELLEN_121_NISSAN_8_CYL",87="HELLEN_121_NISSAN_ALMERA_N16",71="HELLEN_121_VAG_4_CYL",81="HELLEN_121_VAG_8_CYL",78="HELLEN_121_VAG_V6_CYL",79="HELLEN_121_VAG_VR6_CYL",36="HELLEN_128_MERCEDES_4_CYL",88="HELLEN_128_MERCEDES_6_CYL",89="HELLEN_128_MERCEDES_8_CYL",82="HELLEN_154_HYUNDAI_COUPE_BK1",95="HELLEN_154_HYUNDAI_COUPE_BK2",76="HELLEN_154_VAG",75="HELLEN_2CHAN_STIM_QC",74="HELLEN_4CHAN_STIM_QC",57="HELLEN_HONDA_BCM",43="HONDA_600",90="HONDA_K",66="HONDA_OBD1",91="HONDA_OBD2A",104="HYUNDAI_PB",60="L9779_BENCH_ENGINE",54="MAVERICK_X3",34="MAZDA_MIATA_NA6",80="MAZDA_MIATA_NA94",10="MAZDA_MIATA_NA96",83="MAZDA_MIATA_NB1",69="MAZDA_MIATA_NB2",86="MAZDA_MIATA_NB2_36",20="MAZDA_MIATA_NC",33="ME17_9_MISC",68="MERCEDES_M111",1="MIATA_PROTEUS_TCU",99="MINIMAL_PINS",12="MITSUBISHI_3A92",16="MITSUBISHI_4G93",23="MRE_BODY_CONTROL",4="MRE_SECONDARY_CAN",37="MRE_SUBARU_EJ18",62="MRE_VW_B6",5="NISSAN_PRIMERA",35="POLARIS",9="POLARIS_RZR",30="PROTEUS_ANALOG_PWM_TEST",63="PROTEUS_BMW_M73",25="PROTEUS_LUA_DEMO",103="PROTEUS_NISSAN_VQ35",73="PROTEUS_STIM_QC",39="PROTEUS_VW_B6",29="SACHS",92="SIMULATOR_CONFIG",56="SUBARU_2011",70="SUBARU_EG33",17="TCU_4R70W",100="TEST_100",101="TEST_101",18="TEST_33816",28="TEST_CRANK_ENGINE",48="TEST_DC_WASTEGATE_DISCOVERY",26="TEST_ENGINE",45="TEST_ENGINE_VVT",52="TEST_ISSUE_366_BOTH",53="TEST_ISSUE_366_RISE",93="TEST_ISSUE_6451",19="TEST_ROTARY",13="TOYOTA_1NZ_FE",44="TOYOTA_2JZ_GTE_VVTi",102="UNUSED102",31="UNUSED31",42="UNUSED42",94="UNUSED94",105="UNUSED_105",97="UNUSED_97",77="VAG_5_CYL",32="VW_ABA",96="WASTEGATE_PROTEUS_TEST"
 #define engine_type_e_BMW_M52 22
 #define engine_type_e_BMW_M73_MRE 50
 #define engine_type_e_BMW_M73_MRE_SLAVE 51
@@ -459,6 +495,7 @@
 #define engine_type_e_GM_LNF 65
 #define engine_type_e_GM_LTG 55
 #define engine_type_e_GM_SBC 98
+#define engine_type_e_GM_SBC_GEN4 27
 #define engine_type_e_GM_SBC_GEN5 49
 #define engine_type_e_GY6_139QMB 8
 #define engine_type_e_HARLEY 6
@@ -508,7 +545,6 @@
 #define engine_type_e_POLARIS_RZR 9
 #define engine_type_e_PROTEUS_ANALOG_PWM_TEST 30
 #define engine_type_e_PROTEUS_BMW_M73 63
-#define engine_type_e_PROTEUS_GM_LS_4 27
 #define engine_type_e_PROTEUS_LUA_DEMO 25
 #define engine_type_e_PROTEUS_NISSAN_VQ35 103
 #define engine_type_e_PROTEUS_STIM_QC 73
@@ -655,6 +691,8 @@
 #define GAUGE_NAME_FUEL_LAST_INJECTION_STAGE_2 "Fuel: Last inj pulse width stg 2"
 #define GAUGE_NAME_FUEL_LEVEL "Fuel level"
 #define GAUGE_NAME_FUEL_LOAD "Fuel: Load"
+#define GAUGE_NAME_FUEL_LTFT_1 "Long Term Fuel Trim: Bank 1"
+#define GAUGE_NAME_FUEL_LTFT_2 "Long Term Fuel Trim: Bank 2"
 #define GAUGE_NAME_FUEL_PRESSURE_HIGH "Fuel pressure (high)"
 #define GAUGE_NAME_FUEL_PRESSURE_HIGH_UNITS "bar"
 #define GAUGE_NAME_FUEL_PRESSURE_LOW "Fuel pressure (low)"
@@ -709,6 +747,7 @@
 #define GAUGE_NAME_MAP "MAP"
 #define GAUGE_NAME_OIL_PRESSURE "Oil Pressure"
 #define GAUGE_NAME_OIL_PRESSURE_UNITS "kPa"
+#define GAUGE_NAME_OIL_TEMPERATURE "Oil Temperature"
 #define GAUGE_NAME_RAW_FUEL_PRESSURE_HIGH "Fuel pressure raw (high)"
 #define GAUGE_NAME_RAW_FUEL_PRESSURE_LOW "Fuel pressure raw (low)"
 #define GAUGE_NAME_RPM "RPM"
@@ -1269,6 +1308,7 @@
 #define load_override_e_enum "None", "MAP", "TPS", "Acc Pedal", "Cyl Filling %"
 #define LOG_DELIMITER "`"
 #define LOGIC_ANALYZER_CHANNEL_COUNT 4
+#define ltft_s_size 12
 #define LUA_ANALOG_INPUT_COUNT 8
 #define LUA_BUTTON_COUNT 4
 #define LUA_DIGITAL_INPUT_COUNT 8
@@ -1362,11 +1402,13 @@
 #define PACK_MULT_VOLTAGE 1000
 #define PACK_MULT_VSS 100
 #define PACK_PERCENT_BYTE_MULT 100.0
+#define PAGE_SIZE_1 256
+#define PAGE_SIZE_2 2048
 #define PEDAL_TO_TPS_SIZE 8
 #define pedalSensor_NAME "Accelerator pedal"
 #define pedalToTpsTbl_NAME "ETB pedal target"
 #define PERCENT_TRIM_BYTE_PACKING_DIV 0.02
-#define persistent_config_s_size 23696
+#define persistent_config_s_size 23720
 #define pid_s_size 20
 #define pin_input_mode_e_auto_enum 0="PI_DEFAULT",4="PI_INVERTED_DEFAULT",6="PI_INVERTED_PULLDOWN",5="PI_INVERTED_PULLUP",2="PI_PULLDOWN",1="PI_PULLUP"
 #define pin_input_mode_e_enum "DEFAULT", "PULLUP", "PULLDOWN", "INVALID", "INVERTED DEFAULT", "INVERTED PULLUP", "INVERTED PULLDOWN"
@@ -1445,7 +1487,7 @@
 #define SentInput_NONE 0
 #define show_tcu_gauges false
 #define show_vvt_output_pin true
-#define SIGNATURE_HASH 3618133840
+#define SIGNATURE_HASH 3935252696
 #define SIMULATOR_TUNE_BIN_FILE_NAME "generated/simulator_tune_image.bin"
 #define SIMULATOR_TUNE_BIN_FILE_NAME_PREFIX "generated/simulator_tune_image"
 #define SIMULATOR_TUNE_BIN_FILE_NAME_SUFFIX ".bin"
@@ -1513,7 +1555,7 @@
 #define torqueReductionActivationMode_e_TORQUE_REDUCTION_BUTTON 0
 #define torqueReductionActivationMode_e_TORQUE_REDUCTION_CLUTCH_DOWN_SWITCH 2
 #define torqueReductionActivationMode_e_TORQUE_REDUCTION_CLUTCH_UP_SWITCH 3
-#define TOTAL_CONFIG_SIZE 23696
+#define TOTAL_CONFIG_SIZE 23720
 #define TPS_2_BYTE_PACKING_MULT 100
 #define TPS_PPS_TOO_HIGH_THRESHOLD 110
 #define TPS_PPS_TOO_LOW_THRESHOLD -10
@@ -1713,6 +1755,7 @@
 #define ts_command_e_TS_UNUSED_27 27
 #define ts_command_e_TS_UNUSED_28 28
 #define ts_command_e_TS_WIDEBAND 21
+#define ts_command_e_TS_WIDEBAND_FLASH_BY_ID 35
 #define ts_command_e_TS_WIDEBAND_PING_BY_ID 34
 #define ts_command_e_TS_WIDEBAND_SET_IDX_BY_ID 33
 #define ts_command_e_TS_X14 20
@@ -1771,7 +1814,6 @@
 #define TS_RESPONSE_UNDERRUN 0x80
 #define TS_RESPONSE_UNRECOGNIZED_COMMAND 0x83
 #define TS_SCATTER_OFFSETS_COUNT 128
-#define TS_SCATTER_PAGE_SIZE 256
 #define TS_SET_LOGGER_SWITCH 'l'
 #define TS_SET_LOGGER_SWITCH_char l
 #define ts_show_acr_pins true
@@ -1983,12 +2025,12 @@
 #define ts_show_wastegate_sensor true
 #define ts_show_wbo_canbus_index true
 #define ts_show_wbo_canbus_set_index true
-#define TS_SIGNATURE "rusEFI master.2025.06.15.small-can-board.3618133840"
+#define TS_SIGNATURE "rusEFI master.2025.06.19.small-can-board.3935252696"
 #define TS_SIMULATE_CAN '>'
 #define TS_SIMULATE_CAN_char >
 #define TS_TEST_COMMAND 't'
 #define TS_TEST_COMMAND_char t
-#define TS_TOTAL_OUTPUT_SIZE 1952
+#define TS_TOTAL_OUTPUT_SIZE 1968
 #define TS_TRIGGER_SCOPE_CHANNEL_1_NAME "Channel 1"
 #define TS_TRIGGER_SCOPE_CHANNEL_2_NAME "Channel 2"
 #define TS_TRIGGER_SCOPE_DISABLE 5
@@ -2082,4 +2124,5 @@
 #define VVT_TABLE_SIZE 8
 #define VVT_TRACKING_LENGTH 4
 #define WARNING_BUFFER_SIZE 120
+#define wbo_s_size 4
 #define WWAE_TABLE_SIZE 8

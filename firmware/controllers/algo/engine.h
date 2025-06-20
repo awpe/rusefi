@@ -27,6 +27,7 @@
 #include "knock_logic.h"
 #include "idle_state_generated.h"
 #include "sent_state_generated.h"
+#include "closed_loop_idle.h"
 #include "dc_motors_generated.h"
 #include "idle_thread.h"
 #include "injector_model.h"
@@ -128,6 +129,10 @@ public:
 #if EFI_DYNO_VIEW
     DynoView dynoInstance{};
 #endif
+
+#if EFI_IDLE_CONTROL
+	LongTermIdleTrim m_ltit;
+#endif // EFI_IDLE_CONTROL
 
 #if EFI_ENGINE_CONTROL
     FuelComputer fuelComputer{};

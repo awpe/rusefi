@@ -431,6 +431,12 @@ float IdleController::getIdlePosition(float rpm) {
 		}
 
 		currentIdlePosition = iacPosition;
+
+	bool acActive = engine->module<AcController>().unmock().acButtonState;
+	bool fan1Active = enginePins.fanRelay.getLogicValue();
+	bool fan2Active = enginePins.fanRelay2.getLogicValue();
+	updateLtit(rpm, clt, acActive, fan1Active, fan2Active, getIdlePid()->getIntegration());
+
 		return iacPosition;
 #else
 		return 0;
@@ -442,6 +448,8 @@ void IdleController::onFastCallback() {
 #if EFI_SHAFT_POSITION_INPUT
 	float position = getIdlePosition(engine->triggerCentral.instantRpm.getInstantRpm());
 	applyIACposition(position);
+	// huh: why not onIgnitionStateChanged?
+	engine->m_ltit.checkIfShouldSave();
 #endif // EFI_SHAFT_POSITION_INPUT
 }
 
@@ -459,6 +467,17 @@ void IdleController::init() {
 	m_timingPid.initPidClass(&engineConfiguration->idleTimingPid);
 	m_timingHpf.configureHighpass(20, 1);
 	getIdlePid()->initPidClass(&engineConfiguration->idleRpmPid);
+	engine->m_ltit.loadLtitFromConfig();
+}
+
+void IdleController::updateLtit(float rpm, float clt, bool acActive, bool fan1Active, bool fan2Active, float idleIntegral) {
+	if (engineConfiguration->ltitEnabled) {
+		engine->m_ltit.update(rpm, clt, acActive, fan1Active, fan2Active, idleIntegral);
+	}
+}
+
+void IdleController::onIgnitionStateChanged(bool ignitionOn) {
+    engine->m_ltit.onIgnitionStateChanged(ignitionOn);
 }
 
 #endif /* EFI_IDLE_CONTROL */

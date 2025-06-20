@@ -31,6 +31,39 @@ Voltage when the idle valve is closed.\nYou probably don't have one of these!
 ### idlePositionMax
 Voltage when the idle valve is open.\nYou probably don't have one of these!\n1 volt = 1000 units
 
+### ltitEnabled
+Enable LTIT (Long Term Idle Trim) learning
+
+### ltitEmaAlpha
+EMA filter constant for LTIT (0-255)
+
+### ltitStableRpmThreshold
+RPM range to consider stable idle
+
+### ltitStableTime
+Minimum time of stable idle before learning
+
+### ltitCorrectionRate
+LTIT learning rate
+
+### ltitIgnitionOnDelay
+Delay after ignition ON before LTIT learning/application
+
+### ltitIgnitionOffSaveDelay
+Delay after ignition OFF before LTIT save
+
+### ltitClampMin
+Minimum LTIT multiplicative correction value
+
+### ltitClampMax
+Maximum LTIT multiplicative correction value
+
+### ltitSmoothingIntensity
+LTIT table regional smoothing intensity (0=no smoothing)
+
+### ltitIntegratorThreshold
+Minimum threshold of PID integrator for LTIT correction
+
 ### launchFuelAdderPercent
 
 
@@ -146,6 +179,9 @@ On some Ford and Toyota vehicles one of the pedal sensors is not linear on the f
 If enabled - use onboard SPI Accelerometer, otherwise listen for CAN messages
 
 ### enableStagedInjection
+
+
+### useIdleAdvanceWhileCoasting
 
 
 ### tpsMin
@@ -439,9 +475,6 @@ CAN broadcast using custom rusEFI protocol
 ### externalRusEfiGdiModule
 
 
-### flipWboChannels
-
-
 ### measureMapOnlyInOneCylinder
 Useful for individual intakes
 
@@ -673,6 +706,9 @@ How long to look back for TPS-based acceleration enrichment. Increasing this tim
 ### noFuelTrimAfterDfcoTime
 Pause closed loop fueling after deceleration fuel cut occurs. Set this to a little longer than however long is required for normal fueling behavior to resume after fuel cut.
 
+### noFuelTrimAfterAccelTime
+Pause closed loop fueling after acceleration fuel occurs. Set this to a little longer than however long is required for normal fueling behavior to resume after fuel accel.
+
 ### launchSpeedThreshold
 Launch disabled above this speed if setting is above zero
 
@@ -720,6 +756,24 @@ Above this AFR, correction is paused
 
 ### stft.startupDelay
 Delay after starting the engine before beginning closed loop correction.
+
+### ltft.enabled
+Enables lambda sensor long term fuel corrections learning
+
+### ltft.correctionEnabled
+Enables applying long term fuel corrections
+
+### ltft.deadband
+When close to correct AFR, pause correction. This can improve stability by not changing the adjustment if the error is extremely small, but is not required.
+
+### ltft.maxAdd
+Maximum % that the long term fuel trim can add
+
+### ltft.maxRemove
+Maximum % that the long term fuel trim can remove
+
+### ltft.timeConstant
+Commonly referred as Integral gain.\nTime constant for correction while in this cell: this sets responsiveness of the closed loop correction. A value of 30.0 means it will try to make most of the correction within 30 seconds, and a value of 300.0 will try to correct within 5 minutes.\nLower values makes the correction more sensitive, higher values slow the correction down.
 
 ### tps2SecondaryMin
 
@@ -1746,6 +1800,9 @@ Pull-up resistor value on your board
 
 ### speedometerPulsePerKm
 Number of speedometer pulses per kilometer travelled.
+
+### ignKeyAdcDivider
+null
 
 ### maxInjectorDutyInstant
 If injector duty cycle hits this value, instantly cut fuel.

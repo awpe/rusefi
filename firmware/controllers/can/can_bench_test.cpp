@@ -120,9 +120,9 @@ static void setPin(const CANRxFrame& frame, int value) {
 	#endif // EFI_GPIO_HARDWARE && EFI_PROD_CODE
 }
 
-void sendQcBenchEventCounters() {
+void sendQcBenchEventCounters(size_t bus) {
 #if EFI_SHAFT_POSITION_INPUT
-	CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::EVENT_COUNTERS, 8, /*bus*/0, /*isExtended*/true);
+	CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::EVENT_COUNTERS, 8, bus, /*isExtended*/true);
 
 	int primaryFall = engine->triggerCentral.getHwEventCounter((int)SHAFT_PRIMARY_FALLING);
 	int primaryRise = engine->triggerCentral.getHwEventCounter((int)SHAFT_PRIMARY_RISING);
@@ -162,7 +162,7 @@ void sendQcBenchAuxDigitalCounters() {
   }
 }
 
-void sendQcBenchRawAnalogValues() {
+void sendQcBenchRawAnalogValues(size_t bus) {
 	const float values_1[] = {
 		Sensor::getRaw(SensorType::Tps1Primary),
 		Sensor::getRaw(SensorType::Tps1Secondary),
@@ -190,22 +190,22 @@ void sendQcBenchRawAnalogValues() {
 
 	// send the first packet
 	{
-		CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::RAW_ANALOG_1, 8, /*bus*/0, /*isExtended*/true);
+		CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::RAW_ANALOG_1, 8, bus, /*isExtended*/true);
 		for (size_t valueIdx = 0; valueIdx < efi::size(values_1); valueIdx++) {
 			msg[valueIdx] = RAW_TO_BYTE(values_1[valueIdx]);
 		}
 	}
 	{
-		CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::RAW_ANALOG_2, 8, /*bus*/0, /*isExtended*/true);
+		CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::RAW_ANALOG_2, 8, bus, /*isExtended*/true);
 		for (size_t valueIdx = 0; valueIdx < efi::size(values_2); valueIdx++) {
 			msg[valueIdx] = RAW_TO_BYTE(values_2[valueIdx]);
 		}
 	}
 }
 
-static void sendOutBoardMeta() {
+static void sendOutBoardMeta(size_t bus) {
 #if EFI_PROD_CODE
-	CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::IO_META_INFO, 8, /*bus*/0, /*isExtended*/true);
+	CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::IO_META_INFO, 8, bus, /*isExtended*/true);
 	msg[0] = (int)bench_test_magic_numbers_e::BENCH_HEADER;
 	msg[1] = 0;
 	msg[2] = getBoardMetaOutputsCount();
@@ -214,9 +214,9 @@ static void sendOutBoardMeta() {
 #endif // EFI_PROD_CODE
 }
 
-void sendQcBenchBoardStatus() {
+void sendQcBenchBoardStatus(size_t bus) {
 #if EFI_PROD_CODE
-	CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::BOARD_STATUS, 8, /*bus*/0, /*isExtended*/true);
+	CanTxMessage msg(CanCategory::BENCH_TEST, (int)bench_test_packet_ids_e::BOARD_STATUS, 8, bus, /*isExtended*/true);
 
 	int boardId = getBoardId();
 	msg[0] = TRUNCATE_TO_BYTE(boardId >> 8);
@@ -230,7 +230,7 @@ void sendQcBenchBoardStatus() {
     int engineType = (int) engineConfiguration->engineType;
 	msg[5] = engineType >> 8;
 	msg[6] = engineType;
-	sendOutBoardMeta();
+	sendOutBoardMeta(bus);
 #endif // EFI_PROD_CODE
 }
 
@@ -290,7 +290,7 @@ void processCanQcBenchTest(const CANRxFrame& frame) {
   setHwQcMode();
 	bench_test_io_control_e command = (bench_test_io_control_e)frame.data8[1];
 	if (command == bench_test_io_control_e::CAN_BENCH_GET_COUNT) {
-	    sendOutBoardMeta();
+	    sendOutBoardMeta(0);
 	} else if (command == bench_test_io_control_e::CAN_QC_OUTPUT_CONTROL_SET) {
 	  // see also "bench_setpin" console command
 	    setPin(frame, 1);

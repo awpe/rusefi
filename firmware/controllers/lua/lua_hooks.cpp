@@ -847,7 +847,26 @@ extern int luaCommandCounters[LUA_BUTTON_COUNT];
 		engineConfiguration->enableExtendedCanBroadcast = false;
 		return 0;
 	});
-#endif // HW_PROTEUS
+	lua_register(lState, "getCanBaudRate", [](lua_State* l) {
+	  auto index = luaL_checkinteger(l, 1);
+	  if (index == 1) {
+	    lua_pushnumber(l, engineConfiguration->canBaudRate);
+	  } else {
+	    lua_pushnumber(l, engineConfiguration->can2BaudRate);
+	  }
+		return 1;
+	});
+#endif // STM32F4
+
+#if !defined(STM32F4) || defined(WITH_LUA_GET_GPPWM_STATE)
+	lua_register(lState, "getGpPwm", [](lua_State* l) {
+	  auto index = luaL_checkinteger(l, 1);
+	  // this works due to updateGppwm being invoked from periodicSlowCallback
+	  auto result = engine->outputChannels.gppwmOutput[index];
+	  lua_pushnumber(l, result);
+		return 1;
+	});
+#endif
 
 #if EFI_ELECTRONIC_THROTTLE_BODY && EFI_PROD_CODE
   lua_register(lState, "getEtbTarget", [](lua_State* l) {

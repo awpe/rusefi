@@ -27,6 +27,9 @@
 ! Short and Long term fuel corrections
 #define FT_BANK_COUNT 2
 
+#define VE_RPM_COUNT 16
+#define VE_LOAD_COUNT 16
+
 #define TCU_GEAR_COUNT 10
 #define EGT_CHANNEL_COUNT 8
 
@@ -124,6 +127,7 @@
 
 #define GAUGE_NAME_OIL_PRESSURE "Oil Pressure"
 #define GAUGE_NAME_OIL_PRESSURE_UNITS "kPa"
+#define GAUGE_NAME_OIL_TEMPERATURE "Oil Temperature"
 
 #define GAUGE_NAME_ECU_TEMPERATURE "ECU temperature"
 
@@ -174,6 +178,8 @@
 #define GAUGE_NAME_FUEL_BASE "Fuel: base cycle mass"
 #define GAUGE_NAME_FUEL_STFT_1 "Short Term Fuel Trim: Bank 1"
 #define GAUGE_NAME_FUEL_STFT_2 "Short Term Fuel Trim: Bank 2"
+#define GAUGE_NAME_FUEL_LTFT_1 "Long Term Fuel Trim: Bank 1"
+#define GAUGE_NAME_FUEL_LTFT_2 "Long Term Fuel Trim: Bank 2"
 #define GAUGE_NAME_FUEL_WALL_AMOUNT "Fuel: wall amount"
 #define GAUGE_NAME_FUEL_WALL_CORRECTION "Fuel: wall correction"
 #define GAUGE_NAME_FUEL_LOAD "Fuel: Load"

@@ -65,8 +65,7 @@ void setBoardDefaultConfiguration() {
 	engineConfiguration->map.sensor.hwChannel = H144_IN_MAP1;
 	engineConfiguration->clt.adcChannel = H144_IN_CLT;
 	engineConfiguration->iat.adcChannel = H144_IN_IAT;
-	engineConfiguration->tps1_1AdcChannel = H144_IN_TPS;
-	engineConfiguration->tps1_2AdcChannel = H144_IN_TPS2;
+	setTPS1Inputs(H144_IN_TPS, H144_IN_TPS2);
 	setPPSInputs(H144_IN_PPS, H144_IN_PPS2);
 }
 
@@ -201,12 +200,12 @@ static const tle9104_config tle9104_cfg[BOARD_TLE9104_COUNT] = {
     }
 	{
 	  static OutputPin TleEn;
-	  TleEn.initPin("TLE9104 En", H144_UART8_RX);
+	  TleEn.initPin("TLE9104 En", Gpio::H144_UART8_RX);
 	  TleEn.setValue(1);
 	  }
 	  {
 	    static OutputPin TleReset;
-	    TleReset.initPin("TLE9104 Reset", H144_UART8_TX);
+	    TleReset.initPin("TLE9104 Reset", Gpio::H144_UART8_TX);
 	    TleReset.setValue(1);
     }
     {

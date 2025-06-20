@@ -27,11 +27,13 @@ protected:
 	bool decodeAemXSeries(const CANRxFrame& frame, efitick_t nowNt);
 
 	// Decode rusEFI custom format
-	void decodeRusefiStandard(const CANRxFrame& frame, efitick_t nowNt);
+	bool decodeRusefiStandard(const CANRxFrame& frame, efitick_t nowNt);
 	void decodeRusefiDiag(const CANRxFrame& frame);
 
 private:
 	can_wbo_type_e sensorType() const;
+	uint32_t getReCanId() const;
+	uint32_t getAemCanId() const;
 	bool isHeaterAllowed();
 
 	const uint8_t m_sensorIndex;
@@ -41,4 +43,6 @@ private:
 	bool m_afrIsValid;
 	// Used for AEM sensor only
 	bool m_isFault;
+	// Last valid packed received, for wbo::Fault::CanSilent state
+	efitick_t m_lastUpdate = 0;
 };
